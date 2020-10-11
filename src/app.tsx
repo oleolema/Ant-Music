@@ -9,10 +9,10 @@ import {queryCurrent} from './services/user';
 import defaultSettings from '../config/defaultSettings';
 
 // @ts-ignore
-const TitleBar = window.CustomElectronTitlebar;
-TitleBar && new TitleBar.Titlebar({
-  backgroundColor: TitleBar.Color.fromHex('#000')
-});
+// const TitleBar = window.CustomElectronTitlebar;
+// TitleBar && new TitleBar.Titlebar({
+//   backgroundColor: TitleBar.Color.fromHex('#000')
+// });
 
 export async function getInitialState(): Promise<{
   settings?: LayoutSettings;
@@ -49,7 +49,7 @@ export const layout = ({
   initialState: { settings?: LayoutSettings; currentUser?: API.CurrentUser };
 }): BasicLayoutProps => {
   return {
-    rightContentRender: () => <><RightContent/></>,
+    rightContentRender: () => <RightContent/>,
     disableContentMargin: false,
     footerRender: () => <Footer/>,
     onPageChange: () => {

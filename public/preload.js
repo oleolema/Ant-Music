@@ -1,1 +1,1 @@
-window.CustomElectronTitlebar = require('custom-electron-titlebar');
+window.electron = require('electron');

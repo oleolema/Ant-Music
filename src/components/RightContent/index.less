@@ -6,6 +6,7 @@
   :global(.anticon) {
     margin-right: 8px;
   }
+
   :global(.ant-dropdown-menu-item) {
     min-width: 160px;
   }
@@ -17,6 +18,7 @@
   height: 48px;
   margin-left: auto;
   overflow: hidden;
+
   .action {
     display: flex;
     align-items: center;
@@ -24,22 +26,29 @@
     padding: 0 12px;
     cursor: pointer;
     transition: all 0.3s;
+    -webkit-app-region: no-drag;
+
     > span {
       vertical-align: middle;
     }
+
     &:hover {
       background: @pro-header-hover-bg;
     }
+
     &:global(.opened) {
       background: @pro-header-hover-bg;
     }
   }
+
   .search {
     padding: 0 12px;
+
     &:hover {
       background: transparent;
     }
   }
+
   .account {
     .avatar {
       margin-right: 8px;
@@ -55,8 +64,29 @@
     &:hover {
       background: #252a3d;
     }
+
     &:global(.opened) {
       background: #252a3d;
     }
   }
 }
+
+.closeAction {
+
+  .closeIcon {
+    transition: color 0.6s;
+  }
+
+  &:hover {
+    background-color: #3f0000 !important;
+
+    .closeIcon {
+      color: red;
+    }
+  }
+}
+
+:global(.ant-pro-global-header) {
+  -webkit-app-region: drag;
+}
+
