@@ -49,4 +49,7 @@ export default {
   'menu.editor.flow': '流程编辑器',
   'menu.editor.mind': '脑图编辑器',
   'menu.editor.koni': '拓扑编辑器',
+  'menu.recommend': '推荐',
+  'menu.recommend.disc': '推荐歌单',
+  'menu.music-list': '歌曲列表',
 };

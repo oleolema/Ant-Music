@@ -1,10 +1,10 @@
 import React from 'react';
-import { GithubOutlined } from '@ant-design/icons';
-import { DefaultFooter } from '@ant-design/pro-layout';
+import {GithubOutlined} from '@ant-design/icons';
+import {DefaultFooter} from '@ant-design/pro-layout';
 
 export default () => (
   <DefaultFooter
-    copyright="2019 蚂蚁金服体验技术部出品"
+    copyright="2020 oleolema"
     links={[
       {
         key: 'Ant Design Pro',
@@ -14,7 +14,7 @@ export default () => (
       },
       {
         key: 'github',
-        title: <GithubOutlined />,
+        title: <GithubOutlined/>,
         href: 'https://github.com/ant-design/ant-design-pro',
         blankTarget: true,
       },

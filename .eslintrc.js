@@ -5,4 +5,13 @@ module.exports = {
     page: true,
     REACT_APP_ENV: true,
   },
+  rules: {
+    eqeqeq: 'off',
+    'prefer-promise-reject-errors': 'off',
+    'no-console': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    'no-shadow':'off',
+    'no-plusplus':'off',
+  },
 };

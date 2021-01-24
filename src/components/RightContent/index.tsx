@@ -1,6 +1,6 @@
 import {Space, Tag, Tooltip} from 'antd';
 import {QuestionCircleOutlined} from '@ant-design/icons';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {SelectLang, useModel} from 'umi';
 import Avatar from './AvatarDropdown';
 import HeaderSearch from '../HeaderSearch';
@@ -34,12 +34,47 @@ const GlobalHeaderRight: React.FC<{}> = () => {
     className = `${styles.right}  ${styles.dark}`;
   }
 
+  const titleBar = useMemo(() => {
+    if (!currentWindow) {
+      return null;
+    }
+    return (<>
+      <div className={styles.action} onClick={() => {
+        currentWindow.minimize();
+      }}><MinusOutlined/></div>
+      {
+        maximized ? <div className={styles.action} onClick={() => {
+          currentWindow.restore();
+          setMaximized(false);
+        }}><FullscreenExitOutlined/></div> : <div className={styles.action} onClick={() => {
+          currentWindow.maximize();
+          setMaximized(true);
+        }}><FullscreenOutlined/></div>
+      }
+      {
+        console.info(styles)
+      }
+      <div className={`${styles.action} ${styles.closeAction}`} onClick={() => {
+        currentWindow.close();
+      }}>
+        <CloseOutlined className={styles.closeIcon}/></div>
+    </>);
+  }, [maximized]);
+
+
   useEffect(() => {
+    if (!currentWindow) {
+      return;
+    }
     const onMaximized = () => setMaximized(true);
     const onRestore = () => setMaximized(false);
     currentWindow.on("maximize", onMaximized);
     currentWindow.on("unmaximize", onRestore);
+
     return () => {
+      if (!currentWindow) {
+        return;
+      }
       currentWindow.removeListener("maximize", onMaximized);
       currentWindow.removeListener("unmaximize", onRestore);
     }
@@ -66,9 +101,6 @@ const GlobalHeaderRight: React.FC<{}> = () => {
             value: 'Pro Layout',
           },
         ]}
-        // onSearch={value => {
-        //   console.log('input', value);
-        // }}
       />
       <Tooltip title="使用文档">
         <span
@@ -87,21 +119,7 @@ const GlobalHeaderRight: React.FC<{}> = () => {
         </span>
       )}
       <SelectLang className={styles.action}/>
-      <div className={styles.action} onClick={() => {
-        currentWindow.minimize();
-      }}><MinusOutlined/></div>
-      {maximized ? <div className={styles.action} onClick={() => {
-        currentWindow.restore();
-        setMaximized(false);
-      }}><FullscreenExitOutlined/></div> : <div className={styles.action} onClick={() => {
-        currentWindow.maximize();
-        setMaximized(true);
-      }}><FullscreenOutlined/></div>}
-      {console.info(styles)}
-      <div className={`${styles.action} ${styles.closeAction}`}>
-        <CloseOutlined className={styles.closeIcon} onClick={() => {
-          currentWindow.close();
-        }}/></div>
+      {titleBar}
     </Space>
   );
 };

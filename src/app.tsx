@@ -5,8 +5,9 @@ import {history, RequestConfig} from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import {ResponseError} from 'umi-request';
-import {queryCurrent} from './services/user';
 import defaultSettings from '../config/defaultSettings';
+import {API} from "@/services/API";
+import logo from '@/assets/music8.png'
 
 // @ts-ignore
 // const TitleBar = window.CustomElectronTitlebar;
@@ -20,12 +21,12 @@ export async function getInitialState(): Promise<{
   fetchUserInfo: () => Promise<API.CurrentUser | undefined>;
 }> {
   const fetchUserInfo = async () => {
-    try {
-      const currentUser = await queryCurrent();
-      return currentUser;
-    } catch (error) {
-      history.push('/user/login');
-    }
+    // try {
+    //   const currentUser = await queryCurrent();
+    //   return currentUser;
+    // } catch (error) {
+    //   history.push('/user/login');
+    // }
     return undefined;
   };
   // 如果是登录页面，不执行
@@ -50,15 +51,12 @@ export const layout = ({
 }): BasicLayoutProps => {
   return {
     rightContentRender: () => <RightContent/>,
+    logo: logo,
     disableContentMargin: false,
     footerRender: () => <Footer/>,
     onPageChange: () => {
-      const {currentUser} = initialState;
-      const {location} = history;
-      // 如果没有登录，重定向到 login
-      if (!currentUser?.userid && location.pathname !== '/user/login') {
-        history.push('/user/login');
-      }
+      // const {currentUser} = initialState;
+      // const {location} = history;
     },
     menuHeaderRender: undefined,
     ...initialState?.settings,
@@ -110,4 +108,16 @@ const errorHandler = (error: ResponseError) => {
 
 export const request: RequestConfig = {
   errorHandler,
+  errorConfig: {
+    adaptor: (resData) => {
+      return {
+        ...resData,
+        success: resData.code === 200,
+        errorMessage: resData.msg,
+      };
+    },
+  },
+
 };
+
+
