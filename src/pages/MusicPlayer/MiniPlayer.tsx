@@ -26,16 +26,14 @@ interface MiniPlayerProps {
 }
 
 const MiniPlayer: React.FC<MiniPlayerProps> = ({ music, songDetail }) => {
-  const { currentSong } = useModel('music');
-  const { audioRef } = useModel('musicPlayer');
-  const { paused } = useMusicPlayer();
+  const { paused, audioRef, currentSong } = useMusicPlayer();
 
   console.info(paused);
 
   return (
     currentSong && (
       <Card className={style.fixCard}>
-        <Row gutter={10}>
+        <Row gutter={10} align="middle">
           <Col>
             <Avatar size={50} shape="square" src={`${currentSong.al.picUrl}?param=100y100`} />
           </Col>

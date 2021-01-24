@@ -1,7 +1,11 @@
 .fixCard {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
   z-index: 100;
+
+  :global(.ant-card-body) {
+    padding: 6px 12px;
+  }
 }

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import MiniPlayer, { SongDetail } from '@/pages/MusicPlayer/MiniPlayer';
 import { useRequest } from '@@/plugin-request/request';
-import { useModel } from '@@/plugin-model/useModel';
 import { songUrl } from '@/services/song';
 import { Datum, Song, SongData } from '@/services/API';
 import { message } from 'antd';
+import useMusicPlayer from '@/hooks/useMusicPlayer';
 
 export function getTime(n: number) {
   return `${String(~~(n / 60)).padStart(2, '0')}:${String(~~(n % 60)).padStart(2, '0')}`;
@@ -18,8 +18,7 @@ export function initSongDetail(song: Song): SongDetail {
 }
 
 const MusicPlayer: React.FC = () => {
-  const { currentSong } = useModel('music');
-  const { audioRef } = useModel('musicPlayer');
+  const { currentSong, audioRef } = useMusicPlayer();
   const [currentSongDetail, setCurrentSongDetail] = useState<SongDetail | null>(null);
 
   const [datum, setDatum] = useState<Datum>();
@@ -61,6 +60,7 @@ const MusicPlayer: React.FC = () => {
       if (data?.data?.length == 1) {
         const datum = (data.data[0] as unknown) as Datum;
         setDatum(datum);
+        console.info('a', audioRef.current);
         audioRef.current!.src = datum.url;
         if (!datum.url) {
           message.error('无版权或为付费歌曲');
@@ -71,6 +71,12 @@ const MusicPlayer: React.FC = () => {
     });
     setCurrentSongDetail(initSongDetail(currentSong));
   }, [currentSong]);
+
+  useEffect(() => {
+    setInterval(() => {
+      console.info(audioRef.current);
+    }, 1000);
+  }, []);
 
   console.info(currentSongDetail);
 

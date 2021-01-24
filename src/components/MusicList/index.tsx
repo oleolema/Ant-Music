@@ -3,8 +3,8 @@ import { Avatar, Col, List, Row, Typography } from 'antd';
 import { Song } from '@/services/API';
 import style from './index.less';
 import { DownloadOutlined } from '@ant-design/icons/lib';
-import { useModel } from '@@/plugin-model/useModel';
 import { getTime } from '@/pages/MusicPlayer';
+import useMusicPlayer from '@/hooks/useMusicPlayer';
 
 interface MusicListProps {
   list: Song[];
@@ -13,14 +13,14 @@ interface MusicListProps {
 }
 
 console.info(style);
-const ListItem = (item: Song, onClick?: (item: Song) => void, index?: number) => (
+const ListItem = (item: Song, onClick?: () => void, index?: number) => (
   <Row
     align="middle"
     style={{ height: '3em' }}
     className={item.al.picUrl ? style.listItem : ''}
     key={item.id}
     gutter={10}
-    onClick={() => onClick && onClick(item)}
+    onClick={() => onClick && onClick()}
   >
     <Col span={1}>{index ? index : ''}</Col>
     <Col span={1}>
@@ -52,7 +52,7 @@ const ListItem = (item: Song, onClick?: (item: Song) => void, index?: number) =>
 
 export default function <T>({ list, loading, onMore = () => false }: MusicListProps) {
   const [internalLoading] = useState(false);
-  const { setCurrentSong } = useModel('music');
+  const { setCurrentSong, setPlayList, setPlayListAndIndex } = useMusicPlayer();
 
   return (
     <>
@@ -66,7 +66,9 @@ export default function <T>({ list, loading, onMore = () => false }: MusicListPr
           al: { name: '专辑' },
         } as Song)}
         size="small"
-        renderItem={(item, index) => ListItem(item, (item) => setCurrentSong(item), index + 1)}
+        renderItem={(item, index) =>
+          ListItem(item, () => setPlayListAndIndex(list, index), index + 1)
+        }
       />
     </>
   );
