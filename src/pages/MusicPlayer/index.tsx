@@ -18,7 +18,7 @@ export function initSongDetail(song: Song): SongDetail {
 }
 
 const MusicPlayer: React.FC = () => {
-  const { currentSong, audioRef } = useMusicPlayer();
+  const { currentSong, audioRef, next } = useMusicPlayer();
   const [currentSongDetail, setCurrentSongDetail] = useState<SongDetail | null>(null);
 
   const [datum, setDatum] = useState<Datum>();
@@ -34,17 +34,18 @@ const MusicPlayer: React.FC = () => {
     if (!audioRef.current) {
       return;
     }
-    audioRef.current.volume = 0.1;
-    audioRef.current.ontimeupdate = (e) => {
-      if (!audioRef.current) {
-        return;
-      }
+    const onTimeUpdate = () => {
       setCurrentSongDetail((it) => {
         if (it === null || it?.currentTime === ~~audioRef.current!.currentTime) {
           return it;
         }
         return { ...it, currentTime: ~~audioRef.current!.currentTime };
       });
+    };
+    audioRef.current.volume = 1;
+    audioRef.current.addEventListener('timeupdate', onTimeUpdate);
+    return () => {
+      audioRef.current?.removeEventListener('timeupdate', onTimeUpdate);
     };
   }, [audioRef]);
 
@@ -55,30 +56,35 @@ const MusicPlayer: React.FC = () => {
     if (!currentSong || !audioRef.current) {
       return;
     }
+    let timer0: NodeJS.Timeout;
+    let timer1: NodeJS.Timeout;
+    let closed = false;
     songDataRun([currentSong.id]).then((res) => {
       const data = res as SongData;
-      if (data?.data?.length == 1) {
+      if (closed) {
+        return;
+      } else if (data?.data?.length == 1) {
         const datum = (data.data[0] as unknown) as Datum;
         setDatum(datum);
-        console.info('a', audioRef.current);
         audioRef.current!.src = datum.url;
         if (!datum.url) {
-          message.error('无版权或为付费歌曲');
+          message.error('无版权或为付费歌曲, 3秒后播放下一首');
+          timer0 = setTimeout(next, 3000);
         }
       } else {
-        message.error('播放失败');
+        message.error('播放失败, 3秒后播放下一首');
+        timer1 = setTimeout(next, 3000);
       }
     });
     setCurrentSongDetail(initSongDetail(currentSong));
-  }, [currentSong]);
+    return () => {
+      closed = true;
+      clearTimeout(timer0);
+      clearTimeout(timer1);
+    };
+  }, [currentSong?.id]);
 
-  useEffect(() => {
-    setInterval(() => {
-      console.info(audioRef.current);
-    }, 1000);
-  }, []);
-
-  console.info(currentSongDetail);
+  // console.info(currentSongDetail);
 
   return (
     <>

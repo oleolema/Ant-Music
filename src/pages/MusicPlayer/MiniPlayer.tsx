@@ -26,9 +26,7 @@ interface MiniPlayerProps {
 }
 
 const MiniPlayer: React.FC<MiniPlayerProps> = ({ music, songDetail }) => {
-  const { paused, audioRef, currentSong } = useMusicPlayer();
-
-  console.info(paused);
+  const { paused, currentSong, pre, next, play, pause } = useMusicPlayer();
 
   return (
     currentSong && (
@@ -48,27 +46,13 @@ const MiniPlayer: React.FC<MiniPlayerProps> = ({ music, songDetail }) => {
           <Col span={12} className={indexStyle.noneSelect}>
             <Row justify="space-around" style={{ fontSize: '20px' }}>
               <Col>
-                <StepBackwardOutlined />
+                <StepBackwardOutlined onClick={pre} />
               </Col>
               <Col>
-                {paused ? (
-                  <CaretRightOutlined
-                    onClick={() => {
-                      console.info(paused);
-                      audioRef.current!.play();
-                    }}
-                  />
-                ) : (
-                  <PauseOutlined
-                    onClick={() => {
-                      console.info(paused);
-                      audioRef.current!.pause();
-                    }}
-                  />
-                )}
+                {paused ? <CaretRightOutlined onClick={play} /> : <PauseOutlined onClick={pause} />}
               </Col>
               <Col>
-                <StepForwardOutlined />
+                <StepForwardOutlined onClick={next} />
               </Col>
               <Col>
                 <DownloadOutlined />

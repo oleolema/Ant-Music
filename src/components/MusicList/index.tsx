@@ -52,7 +52,7 @@ const ListItem = (item: Song, onClick?: () => void, index?: number) => (
 
 export default function <T>({ list, loading, onMore = () => false }: MusicListProps) {
   const [internalLoading] = useState(false);
-  const { setCurrentSong, setPlayList, setPlayListAndIndex } = useMusicPlayer();
+  const { setPlayListAndIndex } = useMusicPlayer();
 
   return (
     <>
