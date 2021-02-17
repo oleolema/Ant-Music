@@ -1,6 +1,4 @@
-import {MenuDataItem} from '@ant-design/pro-layout';
-import {QualityMonitorModelState} from '@/pages/Monitor/QualityMonitor/data';
-import {ConnectRC} from '@@/plugin-dva/connect';
+import { ConnectRC, MusicModelState, MusicModelType } from '@@/plugin-dva/connect';
 
 export interface Loading {
   global: boolean;
@@ -11,8 +9,8 @@ export interface Loading {
 }
 
 export interface ConnectState {
-  qualityMonitor: QualityMonitorModelState;
   loading: Loading;
+  musicPlayer: MusicModelState;
 }
 
 export type ConnectCS = ConnectRC<ConnectState>;

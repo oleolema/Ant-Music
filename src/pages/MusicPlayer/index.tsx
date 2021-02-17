@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import MiniPlayer, { SongDetail } from '@/pages/MusicPlayer/MiniPlayer';
+// @ts-ignore
 import { useRequest } from '@@/plugin-request/request';
 import { songUrl } from '@/services/song';
 import { Datum, Song, SongData } from '@/services/API';
@@ -59,7 +60,7 @@ const MusicPlayer: React.FC = () => {
     let timer0: NodeJS.Timeout;
     let timer1: NodeJS.Timeout;
     let closed = false;
-    songDataRun([currentSong.id]).then((res) => {
+    songDataRun([currentSong.id]).then((res: any) => {
       const data = res as SongData;
       if (closed) {
         return;

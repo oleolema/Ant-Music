@@ -52,7 +52,7 @@ const ListItem = (item: Song, onClick?: () => void, index?: number) => (
 
 export default function <T>({ list, loading, onMore = () => false }: MusicListProps) {
   const [internalLoading] = useState(false);
-  const { setPlayListAndIndex } = useMusicPlayer();
+  const { setPlayListAndSongId } = useMusicPlayer();
 
   return (
     <>
@@ -62,12 +62,21 @@ export default function <T>({ list, loading, onMore = () => false }: MusicListPr
         dataSource={list}
         header={ListItem({
           name: '音乐标题',
+
           ar: [{ name: '歌手' }],
           al: { name: '专辑' },
         } as Song)}
         size="small"
         renderItem={(item, index) =>
-          ListItem(item, () => setPlayListAndIndex(list, index), index + 1)
+          ListItem(
+            item,
+            () =>
+              setPlayListAndSongId({
+                playList: list,
+                songId: item.id,
+              }),
+            index + 1,
+          )
         }
       />
     </>
