@@ -1,54 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import MiniPlayer, { SongDetail } from '@/pages/MusicPlayer/MiniPlayer';
+import MiniPlayer from '@/pages/MusicPlayer/MiniPlayer';
 // @ts-ignore
 import { useRequest } from '@@/plugin-request/request';
 import { songUrl } from '@/services/song';
-import { Datum, Song, SongData } from '@/services/API';
-import { message } from 'antd';
-import useMusicPlayer from '@/hooks/useMusicPlayer';
+import { Datum, SongData } from '@/services/API';
+import { Card, message } from 'antd';
+import useNext from '@/hooks/useMusicPlayer/useNext';
+import { useModel } from '@@/plugin-model/useModel';
+import { useSelector } from '@@/plugin-dva/exports';
+import { ConnectState } from '@/models/connect';
+import { MusicModelState } from '@/models/musicModel';
+import style from '@/pages/MusicPlayer/miniPlayer.less';
 
 export function getTime(n: number) {
   return `${String(~~(n / 60)).padStart(2, '0')}:${String(~~(n % 60)).padStart(2, '0')}`;
 }
 
-export function initSongDetail(song: Song): SongDetail {
-  return {
-    currentTime: 0,
-    entireTime: song.dt / 1000,
-  };
-}
-
 const MusicPlayer: React.FC = () => {
-  const { currentSong, audioRef, next } = useMusicPlayer();
-  const [currentSongDetail, setCurrentSongDetail] = useState<SongDetail | null>(null);
-
+  const { currentSong, isFull } = useSelector<ConnectState, MusicModelState>(
+    (state) => state.musicPlayer,
+  );
+  const { audioRef } = useModel('musicPlayer');
+  const { next } = useNext();
   const [datum, setDatum] = useState<Datum>();
 
   const { run: songDataRun } = useRequest(songUrl, {
     manual: true,
   });
 
-  /**
-   * 初始化播放器: 监听播放器事件, 配置播放器属性
-   */
   useEffect(() => {
     if (!audioRef.current) {
       return;
     }
-    const onTimeUpdate = () => {
-      setCurrentSongDetail((it) => {
-        if (it === null || it?.currentTime === ~~audioRef.current!.currentTime) {
-          return it;
-        }
-        return { ...it, currentTime: ~~audioRef.current!.currentTime };
-      });
-    };
-    audioRef.current.volume = 1;
-    audioRef.current.addEventListener('timeupdate', onTimeUpdate);
+    audioRef.current?.addEventListener('ended', next);
     return () => {
-      audioRef.current?.removeEventListener('timeupdate', onTimeUpdate);
+      audioRef.current?.removeEventListener('ended', next);
     };
-  }, [audioRef]);
+  }, [audioRef, next]);
 
   /**
    * 歌曲更改时触发
@@ -77,7 +65,6 @@ const MusicPlayer: React.FC = () => {
         timer1 = setTimeout(next, 3000);
       }
     });
-    setCurrentSongDetail(initSongDetail(currentSong));
     return () => {
       closed = true;
       clearTimeout(timer0);
@@ -90,9 +77,12 @@ const MusicPlayer: React.FC = () => {
   return (
     <>
       <audio ref={audioRef} autoPlay />
-      {datum && currentSongDetail && (
+      {datum && (
         <>
-          <MiniPlayer music={datum} songDetail={currentSongDetail} />
+          <Card className={style.fullCard} style={{ visibility: isFull ? 'visible' : 'hidden' }}>
+            full
+          </Card>
+          <MiniPlayer music={datum} entireTime={(currentSong?.dt || 0) / 1000} />
         </>
       )}
     </>

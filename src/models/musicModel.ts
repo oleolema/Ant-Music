@@ -10,6 +10,8 @@ export interface MusicModelState {
   playList: Song[];
   originList: Song[];
   mode: PlayType;
+  currentSong: Song | null;
+  isFull: boolean;
 }
 
 const initMusicState: MusicModelState = {
@@ -17,6 +19,8 @@ const initMusicState: MusicModelState = {
   playList: [],
   originList: [],
   mode: 'cycle',
+  currentSong: null,
+  isFull: false,
 };
 
 export interface MusicModelType {
@@ -27,8 +31,6 @@ export interface MusicModelType {
   };
   reducers: {
     [index: string]: Reducer<MusicModelState>;
-    // 启用 immer 之后
-    // save: ImmerReducer<IndexModelState>;
   };
   subscriptions: {};
 }
@@ -40,12 +42,15 @@ const MusicModel: MusicModelType = {
 
   effects: {
     *setPlayListAndCurrentSongId({ payload }, { call, put }) {
-      console.info(payload);
       yield put({ type: 'setPlayList', payload: payload.playList });
       yield put({ type: 'setCurrentSongId', payload: payload.songId });
     },
     *setMode({ payload }, { call, put }) {
       yield put({ type: 'save', payload: { mode: payload } });
+      yield put({ type: 'setPlayList' });
+    },
+    *nextMode({ payload }, { call, put }) {
+      yield put({ type: 'changeMode' });
       yield put({ type: 'setPlayList' });
     },
   },
@@ -58,16 +63,20 @@ const MusicModel: MusicModelType = {
     },
     next(state = initMusicState, { payload, audioRef }) {
       const { playList, index } = state;
+      const i = (index + 1) % playList.length;
       return {
         ...state,
-        index: (index + 1) % playList.length,
+        index: i,
+        currentSong: playList[i],
       };
     },
     pre(state = initMusicState, { payload, audioRef }) {
       const { playList, index } = state;
+      const i = (index - 1 + playList.length) % playList.length;
       return {
         ...state,
-        index: (index - 1 + playList.length) % playList.length,
+        index: i,
+        currentSong: playList[i],
       };
     },
     setCurrentSongId(state = initMusicState, { payload }) {
@@ -79,6 +88,7 @@ const MusicModel: MusicModelType = {
       return {
         ...state,
         index: i,
+        currentSong: state.playList[i],
       };
     },
     setPlayList(state = initMusicState, { payload }) {
@@ -91,14 +101,42 @@ const MusicModel: MusicModelType = {
       }
       console.info(list);
       const currentSong = getCurrentSong(state);
-      let index0 = list.findIndex((song: Song) => song.id === currentSong?.id);
-      index0 = index0 >= 0 ? index0 : index;
+      let i = list.findIndex((song: Song) => song.id === currentSong?.id);
+      i = i >= 0 ? i : index;
       return {
         ...state,
         originList: list0,
         playList: list,
-        index: index0,
+        index: i,
+        currentSong: list[i],
       };
+    },
+    changeMode(state = initMusicState, { payload }) {
+      switch (state.mode) {
+        case 'cycle':
+          return { ...state, mode: 'random' };
+        case 'random':
+          return { ...state, mode: 'single' };
+        case 'single':
+          return { ...state, mode: 'cycle' };
+      }
+    },
+    setFull(state = initMusicState, { payload }) {
+      if (payload) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+      return { ...state, isFull: payload };
+    },
+    taggerFull(state = initMusicState, { payload }) {
+      const { isFull } = state;
+      // if (!isFull) {
+      //   document.body.style.overflow = 'hidden';
+      // } else {
+      //   document.body.style.overflow = '';
+      // }
+      return { ...state, isFull: !isFull };
     },
   },
   subscriptions: {},

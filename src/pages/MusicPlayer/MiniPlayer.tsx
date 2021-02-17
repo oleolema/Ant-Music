@@ -15,6 +15,14 @@ import { getTime } from '@/pages/MusicPlayer/index';
 import useMusicPlayer from '@/hooks/useMusicPlayer';
 import indexStyle from '@/pages/index.less';
 import Icon from '@ant-design/icons';
+import { useHistory, useLocation } from 'umi';
+import usePaused from '@/hooks/useMusicPlayer/usePaused';
+import useNext from '@/hooks/useMusicPlayer/useNext';
+import { useSelector } from '@@/plugin-dva/exports';
+import { ConnectState } from '@/models/connect';
+import { MusicModelState } from '@/models/musicModel';
+import useCurrentSecond from '@/hooks/useMusicPlayer/useCurrentSecond';
+import _ from 'lodash';
 
 // @ts-ignore
 const RandomSvg = () => (
@@ -43,83 +51,98 @@ const ModeSvg = {
   single: SingleSvg,
 };
 
-export interface SongDetail {
-  currentTime: number;
+interface MiniPlayerProps {
+  music: Datum;
   entireTime: number;
 }
 
-interface MiniPlayerProps {
-  music: Datum;
-  songDetail: SongDetail;
-}
+const MiniPlayer: React.FC<MiniPlayerProps> = ({ music, entireTime }) => {
+  const { currentSong, mode } = useSelector<ConnectState, MusicModelState>(
+    (state) => state.musicPlayer,
+  );
+  const { nextMode, taggerFull } = useMusicPlayer();
 
-const MiniPlayer: React.FC<MiniPlayerProps> = ({ music, songDetail }) => {
-  const { paused, currentSong, pre, next, play, pause, mode, changeMode } = useMusicPlayer();
+  const { paused, play, pause } = usePaused();
+
+  const { pre, next } = useNext();
+
+  const history = useHistory();
+  const location = useLocation();
+
+  console.info('asdfasd');
 
   return (
     currentSong && (
-      <Card className={style.fixCard}>
-        <Row gutter={10} align="middle">
-          <Col>
-            <Avatar size={50} shape="square" src={`${currentSong.al.picUrl}?param=100y100`} />
-          </Col>
-          <Col span={6}>
-            <Row>
-              <Text>{currentSong.name}</Text>
-            </Row>
-            <Row>
-              <Text>{currentSong.ar.map((it) => it.name).join(' / ')}</Text>
-            </Row>
-          </Col>
-          <Col span={12} className={indexStyle.noneSelect}>
-            <Row justify="space-around" style={{ fontSize: '20px' }}>
-              <Col>
-                <Icon component={ModeSvg[mode]} onClick={changeMode} />
-              </Col>
-              <Col>
-                <StepBackwardOutlined onClick={pre} />
-              </Col>
-              <Col>
-                {paused ? <CaretRightOutlined onClick={play} /> : <PauseOutlined onClick={pause} />}
-              </Col>
-              <Col>
-                <StepForwardOutlined onClick={next} />
-              </Col>
-              <Col>
-                <DownloadOutlined />
-              </Col>
-            </Row>
-            <MiniSlider
-              currentTime={~~songDetail.currentTime}
-              entireTime={~~songDetail.entireTime}
-            />
-          </Col>
-        </Row>
-      </Card>
+      <>
+        <Card className={style.fixCard}>
+          <Row gutter={10} align="middle">
+            <Col onClick={taggerFull}>
+              <Avatar
+                style={{ cursor: 'pointer' }}
+                size={50}
+                shape="square"
+                src={`${currentSong.al.picUrl}?param=100y100`}
+              />
+            </Col>
+            <Col span={6}>
+              <Row>
+                <Text>{currentSong.name}</Text>
+              </Row>
+              <Row>
+                <Text>{currentSong.ar.map((it) => it.name).join(' / ')}</Text>
+              </Row>
+            </Col>
+            <Col span={12} className={indexStyle.noneSelect}>
+              <Row justify="space-around" style={{ fontSize: '20px' }}>
+                <Col>
+                  <Icon component={ModeSvg[mode]} onClick={nextMode} />
+                </Col>
+                <Col>
+                  <StepBackwardOutlined onClick={pre} />
+                </Col>
+                <Col>
+                  {paused ? (
+                    <CaretRightOutlined onClick={play} />
+                  ) : (
+                    <PauseOutlined onClick={pause} />
+                  )}
+                </Col>
+                <Col>
+                  <StepForwardOutlined onClick={next} />
+                </Col>
+                <Col>
+                  <DownloadOutlined />
+                </Col>
+              </Row>
+              <MiniSlider entireTime={~~entireTime} />
+            </Col>
+          </Row>
+        </Card>
+      </>
     )
   );
 };
 
 interface MiniSliderType {
-  currentTime: number;
   entireTime: number;
 }
 
-function MiniSlider({ currentTime, entireTime }: MiniSliderType) {
+function MiniSlider({ entireTime }: MiniSliderType) {
+  const currentSecond = useCurrentSecond();
   const [sliderValue, setSliderValue] = useState(-1);
   const { audioRef } = useModel('musicPlayer');
   const sliderRef = useRef<any>(null);
 
   return (
     <Row gutter={10} align="middle">
-      <Col span={2}>{getTime(sliderValue === -1 ? currentTime : sliderValue)}</Col>
+      <Col span={2}>{getTime(sliderValue === -1 ? currentSecond : sliderValue)}</Col>
       <Col span={20}>
         <Slider
           ref={sliderRef}
           min={0}
           max={entireTime}
           tipFormatter={null}
-          value={sliderValue === -1 ? currentTime : sliderValue}
+          value={sliderValue === -1 ? currentSecond : sliderValue}
           onChange={(v: number) => {
             setSliderValue(v);
           }}
@@ -137,4 +160,11 @@ function MiniSlider({ currentTime, entireTime }: MiniSliderType) {
   );
 }
 
-export default MiniPlayer;
+export default React.memo(MiniPlayer, (prevProps, nextProps) => {
+  const prev = _.omit(prevProps, 'children');
+  const next = _.omit(nextProps, 'children');
+  console.info(prev);
+  console.info(next);
+  console.info(_.isEqual(prev, next));
+  return false;
+});
