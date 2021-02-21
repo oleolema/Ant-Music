@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Avatar, Card, Col, Row, Slider } from 'antd';
-import style from './miniPlayer.less';
+import style from './index.less';
 import Text from 'antd/es/typography/Text';
 import {
   CaretRightOutlined,
@@ -9,7 +9,6 @@ import {
   StepBackwardOutlined,
   StepForwardOutlined,
 } from '@ant-design/icons/lib';
-import { Datum } from '@/services/API';
 import { useModel } from '@@/plugin-model/useModel';
 import { getTime } from '@/pages/MusicPlayer/index';
 import useMusicPlayer from '@/hooks/useMusicPlayer';
@@ -22,7 +21,6 @@ import { useSelector } from '@@/plugin-dva/exports';
 import { ConnectState } from '@/models/connect';
 import { MusicModelState } from '@/models/musicModel';
 import useCurrentSecond from '@/hooks/useMusicPlayer/useCurrentSecond';
-import _ from 'lodash';
 
 // @ts-ignore
 const RandomSvg = () => (
@@ -52,15 +50,15 @@ const ModeSvg = {
 };
 
 interface MiniPlayerProps {
-  music: Datum;
   entireTime: number;
 }
 
-const MiniPlayer: React.FC<MiniPlayerProps> = ({ music, entireTime }) => {
+const MiniPlayer: React.FC<MiniPlayerProps> = ({ entireTime }) => {
   const { currentSong, mode } = useSelector<ConnectState, MusicModelState>(
     (state) => state.musicPlayer,
   );
   const { nextMode, taggerFull } = useMusicPlayer();
+  const { datum } = useModel('datum');
 
   const { paused, play, pause } = usePaused();
 
@@ -69,11 +67,9 @@ const MiniPlayer: React.FC<MiniPlayerProps> = ({ music, entireTime }) => {
   const history = useHistory();
   const location = useLocation();
 
-  console.info('asdfasd');
-
   return (
     currentSong && (
-      <>
+      <div className={style.noBorder}>
         <Card className={style.fixCard}>
           <Row gutter={10} align="middle">
             <Col onClick={taggerFull}>
@@ -118,7 +114,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = ({ music, entireTime }) => {
             </Col>
           </Row>
         </Card>
-      </>
+      </div>
     )
   );
 };
@@ -131,6 +127,7 @@ function MiniSlider({ entireTime }: MiniSliderType) {
   const currentSecond = useCurrentSecond();
   const [sliderValue, setSliderValue] = useState(-1);
   const { audioRef } = useModel('musicPlayer');
+  const { lyricObj, handler } = useModel('lyricObj');
   const sliderRef = useRef<any>(null);
 
   return (
@@ -145,6 +142,7 @@ function MiniSlider({ entireTime }: MiniSliderType) {
           value={sliderValue === -1 ? currentSecond : sliderValue}
           onChange={(v: number) => {
             setSliderValue(v);
+            lyricObj?.seek(v * 1000);
           }}
           onAfterChange={(v: number) => {
             audioRef.current!.currentTime = v;
@@ -160,11 +158,4 @@ function MiniSlider({ entireTime }: MiniSliderType) {
   );
 }
 
-export default React.memo(MiniPlayer, (prevProps, nextProps) => {
-  const prev = _.omit(prevProps, 'children');
-  const next = _.omit(nextProps, 'children');
-  console.info(prev);
-  console.info(next);
-  console.info(_.isEqual(prev, next));
-  return false;
-});
+export default React.memo(MiniPlayer);

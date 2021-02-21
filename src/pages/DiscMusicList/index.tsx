@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import useLocationState from '@/hooks/useLocationState';
 import { useRequest } from '@@/plugin-request/request';
 import { playlistDetail } from '@/services/disc';
-import { Avatar, Button, Card, Col, Image, Row, Space, Tag } from 'antd';
+import { Avatar, Button, Col, Image, Row, Space, Tag } from 'antd';
 import Title from 'antd/es/typography/Title';
 import Paragraph from 'antd/es/typography/Paragraph';
 import { PlayCircleOutlined, UserOutlined } from '@ant-design/icons/lib';
@@ -42,7 +42,7 @@ export default function <T>() {
   );
 
   return (
-    <Card>
+    <>
       <Row>
         <Col span={5}>
           <Image src={discData?.playlist.coverImgUrl} />
@@ -82,6 +82,6 @@ export default function <T>() {
         </Col>
       </Row>
       <MusicList loading={songListLoading || loading} list={songList as Song[]} />
-    </Card>
+    </>
   );
 }

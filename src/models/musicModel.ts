@@ -122,20 +122,28 @@ const MusicModel: MusicModelType = {
       }
     },
     setFull(state = initMusicState, { payload }) {
-      if (payload) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
+      const { isFull } = state;
+      // setTimeout(() => {
+      //   if (!isFull) {
+      //     document.body.style.overflow = 'hidden';
+      //   } else {
+      //     document.body.style.overflow = '';
+      //   }
+      // });
+      if (isFull === payload) {
+        return state;
       }
       return { ...state, isFull: payload };
     },
     taggerFull(state = initMusicState, { payload }) {
       const { isFull } = state;
-      // if (!isFull) {
-      //   document.body.style.overflow = 'hidden';
-      // } else {
-      //   document.body.style.overflow = '';
-      // }
+      // setTimeout(() => {
+      //   if (!isFull) {
+      //     document.body.style.overflow = 'hidden';
+      //   } else {
+      //     document.body.style.overflow = '';
+      //   }
+      // });
       return { ...state, isFull: !isFull };
     },
   },

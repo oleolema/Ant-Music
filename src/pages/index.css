@@ -4,9 +4,9 @@
 :global(.ant-pro-basicLayout-content) {
   margin: 0;
 }
-
 :global(.ant-pro-top-nav-header),
 :global(.ant-menu),
 :global(.ant-layout-header) {
   background: #0000 !important;
 }
+/*# sourceMappingURL=index.css.map */

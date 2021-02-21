@@ -5,6 +5,7 @@ import style from './index.less';
 import { DownloadOutlined } from '@ant-design/icons/lib';
 import { getTime } from '@/pages/MusicPlayer';
 import useMusicPlayer from '@/hooks/useMusicPlayer';
+import VirtualList from '../VirtualList';
 
 interface MusicListProps {
   list: Song[];
@@ -12,13 +13,22 @@ interface MusicListProps {
   onMore?: () => boolean;
 }
 
+// 大于该值使用虚拟列表
+const VIRTUAL_MAX_NUM = 1000;
+
 console.info(style);
-const ListItem = (item: Song, onClick?: () => void, index?: number) => (
+const ListItem = (
+  item: Song,
+  onClick?: () => void,
+  index?: number,
+  key?: string,
+  styl: any = {},
+) => (
   <Row
     align="middle"
-    style={{ height: '3em' }}
+    style={{ ...styl, height: '3em' }}
     className={item.al.picUrl ? style.listItem : ''}
-    key={item.id}
+    key={key || item.id}
     gutter={10}
     onClick={() => onClick && onClick()}
   >
@@ -55,30 +65,54 @@ export default function <T>({ list, loading, onMore = () => false }: MusicListPr
   const { setPlayListAndSongId } = useMusicPlayer();
 
   return (
-    <>
-      <List
-        loading={internalLoading || loading}
-        itemLayout="horizontal"
-        dataSource={list}
-        header={ListItem({
-          name: '音乐标题',
-
-          ar: [{ name: '歌手' }],
-          al: { name: '专辑' },
-        } as Song)}
-        size="small"
-        renderItem={(item, index) =>
-          ListItem(
-            item,
-            () =>
-              setPlayListAndSongId({
-                playList: list,
-                songId: item.id,
-              }),
-            index + 1,
-          )
-        }
-      />
-    </>
+    <div>
+      {list.length > VIRTUAL_MAX_NUM ? (
+        <VirtualList
+          rowCount={list.length}
+          rowRenderer={({ index, key, style }: any) => {
+            return ListItem(
+              list[index],
+              () =>
+                setPlayListAndSongId({
+                  playList: list,
+                  songId: list[index].id,
+                }),
+              index + 1,
+              key,
+              style,
+            );
+          }}
+          header={ListItem({
+            name: '音乐标题',
+            ar: [{ name: '歌手' }],
+            al: { name: '专辑' },
+          } as Song)}
+          loading={internalLoading || loading}
+        />
+      ) : (
+        <List
+          loading={internalLoading || loading}
+          itemLayout="horizontal"
+          dataSource={list}
+          header={ListItem({
+            name: '音乐标题',
+            ar: [{ name: '歌手' }],
+            al: { name: '专辑' },
+          } as Song)}
+          size="small"
+          renderItem={(item, index) =>
+            ListItem(
+              item,
+              () =>
+                setPlayListAndSongId({
+                  playList: list,
+                  songId: item.id,
+                }),
+              index + 1,
+            )
+          }
+        />
+      )}
+    </div>
   );
 }
