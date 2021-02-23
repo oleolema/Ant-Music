@@ -11,7 +11,6 @@ export interface MusicModelState {
   originList: Song[];
   mode: PlayType;
   currentSong: Song | null;
-  isFull: boolean;
 }
 
 const initMusicState: MusicModelState = {
@@ -20,7 +19,6 @@ const initMusicState: MusicModelState = {
   originList: [],
   mode: 'cycle',
   currentSong: null,
-  isFull: false,
 };
 
 export interface MusicModelType {
@@ -120,31 +118,6 @@ const MusicModel: MusicModelType = {
         case 'single':
           return { ...state, mode: 'cycle' };
       }
-    },
-    setFull(state = initMusicState, { payload }) {
-      const { isFull } = state;
-      // setTimeout(() => {
-      //   if (!isFull) {
-      //     document.body.style.overflow = 'hidden';
-      //   } else {
-      //     document.body.style.overflow = '';
-      //   }
-      // });
-      if (isFull === payload) {
-        return state;
-      }
-      return { ...state, isFull: payload };
-    },
-    taggerFull(state = initMusicState, { payload }) {
-      const { isFull } = state;
-      // setTimeout(() => {
-      //   if (!isFull) {
-      //     document.body.style.overflow = 'hidden';
-      //   } else {
-      //     document.body.style.overflow = '';
-      //   }
-      // });
-      return { ...state, isFull: !isFull };
     },
   },
   subscriptions: {},

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import style from './index.less';
 // @ts-ignore
 import VList from 'react-virtualized/dist/commonjs/List';
@@ -36,6 +36,8 @@ const VirtualList = function <T>({
       width={width}
     />
   );
+
+  // @ts-ignore
   const autoSize = (props: any) => {
     const { height, isScrolling, onChildScroll, scrollTop, onRowsRendered } = props;
     return (

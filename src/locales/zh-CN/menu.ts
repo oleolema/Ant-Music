@@ -52,4 +52,5 @@ export default {
   'menu.recommend': '推荐',
   'menu.recommend.disc': '推荐歌单',
   'menu.music-list': '歌曲列表',
+  'menu.history': '播放历史',
 };

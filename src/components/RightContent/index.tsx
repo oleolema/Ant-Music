@@ -1,8 +1,7 @@
-import { Space, Tag, Tooltip } from 'antd';
-import { LeftOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Space } from 'antd';
+import { LeftOutlined } from '@ant-design/icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import { SelectLang, useHistory, useModel } from 'umi';
-import Avatar from './AvatarDropdown';
+import { useHistory, useModel } from 'umi';
 import HeaderSearch from '../HeaderSearch';
 import styles from './index.less';
 import {

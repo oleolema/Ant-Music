@@ -24,6 +24,12 @@ export default [
         hideInMenu: true,
       },
       {
+        path: '/history',
+        name: 'history',
+        icon: 'history',
+        component: './HistoryMusicList/index',
+      },
+      {
         component: './404',
       },
     ],

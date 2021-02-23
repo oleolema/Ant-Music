@@ -19,7 +19,5 @@ export default () => {
       [],
     ),
     nextMode: useCallback(() => dispatch('nextMode'), []),
-    setFull: useCallback((p: boolean) => dispatch('setFull', p), []),
-    taggerFull: useCallback(() => dispatch('taggerFull'), []),
   };
 };

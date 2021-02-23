@@ -9,7 +9,7 @@ import VirtualList from '../VirtualList';
 
 interface MusicListProps {
   list: Song[];
-  loading: boolean;
+  loading?: boolean;
   onMore?: () => boolean;
 }
 
@@ -60,7 +60,7 @@ const ListItem = (
   </Row>
 );
 
-export default function <T>({ list, loading, onMore = () => false }: MusicListProps) {
+export default function <T>({ list, loading = false, onMore = () => false }: MusicListProps) {
   const [internalLoading] = useState(false);
   const { setPlayListAndSongId } = useMusicPlayer();
 

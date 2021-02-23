@@ -8,7 +8,7 @@ import Paragraph from 'antd/es/typography/Paragraph';
 import { PlayCircleOutlined, UserOutlined } from '@ant-design/icons/lib';
 import { DiscMusicData } from '@/data/DiscMusicData';
 import { songDetail } from '@/services/song';
-import { Song, SongDetailData } from '@/services/API';
+import { SongDetailData } from '@/services/API';
 import MusicList from '@/components/MusicList';
 import moment from 'moment';
 
@@ -21,7 +21,7 @@ export default function <T>() {
     manual: true,
   });
 
-  songList = useMemo(() => (songList as SongDetailData)?.songs || [], [songList]);
+  const songs = useMemo(() => (songList as SongDetailData)?.songs || [], [songList]);
 
   const [discData, setDiscData] = useState<DiscMusicData>();
 
@@ -81,7 +81,7 @@ export default function <T>() {
           </Space>
         </Col>
       </Row>
-      <MusicList loading={songListLoading || loading} list={songList as Song[]} />
+      <MusicList loading={songListLoading || loading} list={songs} />
     </>
   );
 }

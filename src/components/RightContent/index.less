@@ -72,7 +72,6 @@
 }
 
 .closeAction {
-
   .closeIcon {
     transition: color 0.3s;
   }
@@ -90,3 +89,15 @@
   -webkit-app-region: drag;
 }
 
+:global(.ant-pro-global-header-collapsed-button),
+:global(.ant-pro-global-header-logo) {
+  -webkit-app-region: no-drag;
+}
+
+:global(.ant-pro-top-nav-header-menu) {
+  -webkit-app-region: drag;
+
+  li {
+    -webkit-app-region: no-drag;
+  }
+}

@@ -1,5 +1,6 @@
 import { http } from '@/utils/request';
-import { DiscData } from '@/services/API';
+import { DiscData, SongDetailData } from '@/services/API';
+import { split } from '@/utils/utils';
 
 export interface LyricData {
   status: number;
@@ -37,10 +38,15 @@ export interface LyricObj {
   lines: Line[];
   state: number;
   curLine: number;
+  curNum: number;
+  startStamp: number;
+  timer: number;
+  pauseStamp: number;
   play: () => void;
   seek: (n: number) => void;
   stop: () => void;
   togglePlay: () => void;
+  handler: (p: { lineNum: number; txt: string }) => void;
 }
 
 export interface Line {
@@ -56,12 +62,30 @@ export interface Tags {
   by: string;
 }
 
-// 歌单详情
-export const songDetail = (ids: number[]): Promise<DiscData> =>
-  http.get('api/netease/song/detail', { params: { ids: ids.join(',') } });
+// 歌单详情 (分段请求)
+export const songDetail = (ids: number[]): Promise<{ data: SongDetailData }> =>
+  Promise.all(
+    split(ids, 400)
+      .map((it) => () =>
+        http.post('api/netease/song/detail', {
+          params: { ids: ids.slice(it[0], it[1]).join(',') },
+        }) as Promise<{ data: SongDetailData }>,
+      )
+      .map((it) => it()),
+  ).then((a) => {
+    const r = a.reduce((previousValue, currentValue) => {
+      previousValue.data.songs = [...previousValue.data.songs, ...currentValue.data.songs];
+      previousValue.data.privileges = [
+        ...previousValue.data.privileges,
+        ...currentValue.data.privileges,
+      ];
+      return previousValue;
+    });
+    return r;
+  });
 
 export const songUrl = (ids: number[]): Promise<DiscData> =>
-  http.get('api/netease/song/url', { params: { id: ids.join(',') } });
+  http.post('api/netease/song/url', { params: { id: ids.join(',') } });
 
 export const lyric = (id: number): Promise<LyricData> =>
-  http.get('api/netease/lyric', { params: { id } });
+  http.post('api/netease/lyric', { params: { id } });

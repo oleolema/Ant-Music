@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from '@@/plugin-dva/exports';
 import { ConnectState } from '@/models/connect';
 import { MusicModelState } from '@/models/musicModel';
-import style from './index.less';
-import anime from 'animejs/lib/anime.es.js';
+import styles from './index.less';
+import anime from 'animejs';
 import { useModel } from '@@/plugin-model/useModel';
+import Scroll from '@/components/MyScroll';
+import { Col, Image, Row } from 'antd';
 
 export interface SongDetail {
   currentTime: number;
@@ -15,39 +16,39 @@ export interface SongDetail {
 interface MiniPlayerProps {}
 
 const MiniPlayer: React.FC<MiniPlayerProps> = () => {
-  const { currentSong, isFull } = useSelector<ConnectState, MusicModelState>(
-    (state) => state.musicPlayer,
-  );
-  const { setHandler, lyricObj } = useModel('lyricObj');
-  const lyricLinesRef = useRef();
-
+  const { currentSong } = useSelector<ConnectState, MusicModelState>((state) => state.musicPlayer);
+  const { lyricObj, noLyric, hasTLyric } = useModel('lyricObj');
+  const { isFull } = useModel('full');
+  const lyricLinesRef = useRef<HTMLUListElement>(null);
+  const scrollRef = useRef<{ scrollToElement: any; scrollTo: any }>(null);
+  // @ts-ignore
   const [visible, setVisible] = useState(false);
 
+  // 设置歌词处理方法
   useEffect(() => {
-    setHandler((it: any) => ({ lineNum, txt }) => {
-      console.info(txt);
-    });
-  }, []);
-  // const lyricHandler = useCallback(({ lineNum, txt }) => {
-  //   console.info(txt);
-  // }, []);
-  //
-  // useEffect(() => {
-  //   if (!currentSong) {
-  //     return;
-  //   }
-  //   lyric(currentSong?.id).then((res) => {
-  //     console.info(res.data.lrc.lyric);
-  //     console.info(res.data.tlyric.lyric);
-  //
-  //   });
-  // }, [currentSong?.id]);
+    if (!lyricObj) {
+      return;
+    }
+    const maxLineNum = hasTLyric ? 2 : 4;
+    lyricObj.handler = (p: { lineNum: number; txt: string }) => {
+      const { lineNum } = p;
+      if (!lyricLinesRef.current) {
+        return;
+      }
+      const lis = Array.from(lyricLinesRef.current.children);
+      lis.forEach((it) => (it.className = styles.lyricItem));
+      lis[lineNum].className = styles.currentLyric;
+      if (lineNum - maxLineNum >= 0) {
+        scrollRef.current?.scrollToElement(lis[lineNum - maxLineNum], 1000);
+      }
+    };
+  }, [lyricLinesRef, scrollRef, hasTLyric, lyricObj]);
 
-  // useEffect(() => {
-  //   console.info('ad');
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0);
+  }, [lyricObj, scrollRef]);
 
-  // }, []);
-
+  // 全屏动画效果
   useEffect(() => {
     let timer1: NodeJS.Timeout;
     if (isFull) {
@@ -65,6 +66,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
         easing: 'spring(1, 100, 15, 5)',
         opacity: 0.5,
       });
+      // 删除元素
       timer1 = setTimeout(() => {
         setVisible(false);
       }, 2000);
@@ -80,25 +82,49 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
     <>
       {currentSong && (
         <div
-          className={`${style.baseFull} animeBaseFull `}
+          className={`${styles.baseFull} animeBaseFull `}
           style={{ transform: `translateY(${window.innerHeight + 100}px)` }}
         >
-          {visible && (
-            <>
-              <div className={style.backgroundColor} />
-              <div
-                className={style.backgroundImage}
-                style={{ backgroundImage: `url(${currentSong.al.picUrl}?param=100y100)` }}
-              />
-              <Card className={style.fullCard} style={{ overflowY: 'scroll' }}>
-                <li style={{ height: 10000 }}>
-                  {lyricObj.lines.map((it) => (
-                    <ul>${it}</ul>
-                  ))}
-                </li>
-              </Card>
-            </>
-          )}
+          <div className={styles.backgroundColor} />
+          <div
+            className={styles.backgroundImage}
+            style={{ backgroundImage: `url(${currentSong.al.picUrl}?param=100y100)` }}
+          />
+
+          <div className={styles.fullCard}>
+            <Row style={{ padding: '24px 0' }}>
+              <Col
+                offset={1}
+                className={styles.cover}
+                span={10}
+                style={{ textAlign: 'center', alignSelf: 'center' }}
+              >
+                <Image src={`${currentSong.al.picUrl}`} width="70%" height="auto" />
+              </Col>
+              <Col offset={1} span={12}>
+                <Scroll
+                  reference={scrollRef}
+                  click={true}
+                  height={'calc(100vh - 78px - 48px)'}
+                  animation={{ speed: 50 }}
+                >
+                  {noLyric ? (
+                    <div className={styles.noLyric}>没有歌词</div>
+                  ) : (
+                    <ul ref={lyricLinesRef}>
+                      {lyricObj?.lines.map((it, index) => (
+                        <li
+                          className={styles.lyricItem}
+                          key={index}
+                          dangerouslySetInnerHTML={{ __html: it.txt }}
+                        />
+                      ))}
+                    </ul>
+                  )}
+                </Scroll>
+              </Col>
+            </Row>
+          </div>
         </div>
       )}
     </>

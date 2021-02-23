@@ -18,3 +18,10 @@ export const isAntDesignProOrDev = (): boolean => {
   }
   return isAntDesignPro();
 };
+
+export function split(a: any[], k: number) {
+  const len = ~~(a.length / k);
+  return [...new Array(len)]
+    .map((_, i) => [i * k, (i + 1) * k])
+    .concat([[len * k, len * k + (a.length % k)]]);
+}
