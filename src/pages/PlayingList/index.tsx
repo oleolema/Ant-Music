@@ -2,12 +2,14 @@ import React from 'react';
 import { Button, Col, Row, Space } from 'antd';
 import { DeleteOutlined, PlayCircleOutlined } from '@ant-design/icons/lib';
 import MusicList from '@/components/MusicList';
-import { useModel } from '@@/plugin-model/useModel';
 import useMusicPlayer from '@/hooks/useMusicPlayer';
+import { useSelector } from '@@/plugin-dva/exports';
+import { ConnectState } from '@/models/connect';
+import { MusicModelState } from '@/models/musicModel';
 
 export default function <T>() {
-  const { history, clearHistory, deleteHistory } = useModel('historyList');
-  const { setPlayListAndPlay } = useMusicPlayer();
+  const { playList } = useSelector<ConnectState, MusicModelState>((state) => state.musicPlayer);
+  const { setPlayListAndPlay, deleteSongFromPlayList, clearPlayList } = useMusicPlayer();
 
   return (
     <>
@@ -19,21 +21,21 @@ export default function <T>() {
                 <Button
                   type="primary"
                   onClick={() => {
-                    setPlayListAndPlay(history);
+                    setPlayListAndPlay(playList);
                   }}
-                  disabled={!history || history.length === 0}
+                  disabled={!playList || playList.length === 0}
                 >
                   <PlayCircleOutlined />
                   播放全部
                 </Button>
                 <Button
                   type="primary"
-                  onClick={clearHistory}
-                  disabled={!history || history.length === 0}
+                  onClick={clearPlayList}
+                  disabled={!playList || playList.length === 0}
                   color="red"
                 >
                   <DeleteOutlined />
-                  清空历史
+                  清空列表
                 </Button>
               </Space>
             </Row>
@@ -41,10 +43,10 @@ export default function <T>() {
         </Col>
       </Row>
       <MusicList
-        list={history}
+        list={playList}
         clickType="insert"
         onDeleteItem={(item, index) => {
-          deleteHistory(item);
+          deleteSongFromPlayList(item);
         }}
       />
     </>

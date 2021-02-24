@@ -20,9 +20,16 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
   const { lyricObj, noLyric, hasTLyric } = useModel('lyricObj');
   const { isFull } = useModel('full');
   const lyricLinesRef = useRef<HTMLUListElement>(null);
-  const scrollRef = useRef<{ scrollToElement: any; scrollTo: any }>(null);
+  const scrollRef = useRef<{ scrollToElement: any; scrollTo: any; scrollRef: any }>(null);
   // @ts-ignore
   const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    Array.from(lyricLinesRef.current?.children || []).forEach(
+      (it) => (it.className = styles.lyricItem),
+    );
+    scrollRef.current?.scrollTo(0, 0);
+  }, [lyricLinesRef, scrollRef, currentSong?.id]);
 
   // 设置歌词处理方法
   useEffect(() => {
@@ -40,13 +47,11 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
       lis[lineNum].className = styles.currentLyric;
       if (lineNum - maxLineNum >= 0) {
         scrollRef.current?.scrollToElement(lis[lineNum - maxLineNum], 1000);
+      } else if (scrollRef.current?.scrollRef.current?.scrollTop !== 0) {
+        scrollRef.current?.scrollToElement(lis[lineNum], 1000);
       }
     };
   }, [lyricLinesRef, scrollRef, hasTLyric, lyricObj]);
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo(0, 0);
-  }, [lyricObj, scrollRef]);
 
   // 全屏动画效果
   useEffect(() => {

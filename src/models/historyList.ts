@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Song } from '@/services/API';
 import store2 from 'store2';
 
-const MAX_HISTORY_LENGTH = 200;
+const MAX_HISTORY_LENGTH = 50;
 
 const HISTORY_LIST = 'historyList';
 
@@ -31,6 +31,12 @@ export default () => {
         store.set(HISTORY_LIST, h, true);
       });
       setHistory(h);
+    },
+    clearHistory: () => {
+      setHistory([]);
+    },
+    deleteHistory: (song: Song) => {
+      setHistory(history.filter((it) => it.id !== song.id));
     },
   };
 };

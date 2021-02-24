@@ -11,15 +11,20 @@ import { songDetail } from '@/services/song';
 import { SongDetailData } from '@/services/API';
 import MusicList from '@/components/MusicList';
 import moment from 'moment';
+import useMusicPlayer from '@/hooks/useMusicPlayer';
+
+export type ListType = 'disc' | 'artist';
 
 export default function <T>() {
-  const { loading, run } = useRequest(playlistDetail, {
+  const { loading: playlistDetailLoading, run: playlistDetailRun } = useRequest(playlistDetail, {
     manual: true,
   });
 
   let { loading: songListLoading, data: songList, run: songListRun } = useRequest(songDetail, {
     manual: true,
   });
+
+  const { setPlayListAndPlay } = useMusicPlayer();
 
   const songs = useMemo(() => (songList as SongDetailData)?.songs || [], [songList]);
 
@@ -30,7 +35,7 @@ export default function <T>() {
       if (id == -1) {
         return;
       }
-      run(id).then((res) => {
+      playlistDetailRun(id).then((res) => {
         const data = res as DiscMusicData;
         console.info(res);
         setDiscData(data);
@@ -60,10 +65,14 @@ export default function <T>() {
                 />
               </Col>
               <Col>{discData?.playlist.creator.nickname}</Col>
-              <Col>{moment(discData?.playlist.createTime).format('lll')}</Col>
+              <Col>{moment(discData?.playlist.updateTime).format('lll')}</Col>
             </Row>
             <Row>
-              <Button type="primary">
+              <Button
+                type="primary"
+                onClick={() => setPlayListAndPlay(songs)}
+                disabled={!songs || songs.length === 0}
+              >
                 <PlayCircleOutlined />
                 播放全部
               </Button>
@@ -81,7 +90,7 @@ export default function <T>() {
           </Space>
         </Col>
       </Row>
-      <MusicList loading={songListLoading || loading} list={songs} />
+      <MusicList loading={songListLoading || playlistDetailLoading} list={songs} />
     </>
   );
 }

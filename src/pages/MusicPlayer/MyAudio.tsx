@@ -11,17 +11,36 @@ import { ConnectState } from '@/models/connect';
 import { MusicModelState } from '@/models/musicModel';
 
 export default () => {
-  const { currentSong } = useSelector<ConnectState, MusicModelState>((state) => state.musicPlayer);
+  const { currentSong, playList } = useSelector<ConnectState, MusicModelState>(
+    (state) => state.musicPlayer,
+  );
   const { audioRef } = useModel('musicPlayer');
   const { setDatum } = useModel('datum');
   const { setCurrentSecond } = useModel('currentSecond');
   const { addHistory } = useModel('historyList');
+  const { volume } = useModel('volume');
   const { lyricObj, lyricPause, lyricPlay, setLyric } = useModel('lyricObj');
   const { next } = useNext();
   const { setPaused } = usePaused();
   const { run: songDataRun } = useRequest(songUrl, {
     manual: true,
   });
+
+  useEffect(() => {
+    if (!audioRef.current) {
+      return;
+    }
+    if (playList.length === 0) {
+      audioRef.current.src = '';
+    }
+  }, [playList]);
+
+  useEffect(() => {
+    if (!audioRef.current) {
+      return;
+    }
+    audioRef.current.volume = volume;
+  }, [volume]);
 
   /**
    * 播放/暂停/自动下一首/歌曲当前时间
@@ -50,7 +69,6 @@ export default () => {
         return ~~audioRef.current!.currentTime;
       });
     };
-    audioRef.current.volume = 1;
     audioRef.current.addEventListener('pause', onPause);
     audioRef.current.addEventListener('play', onPlay);
     audioRef.current?.addEventListener('ended', next);

@@ -19,31 +19,36 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
   const { currentSong, mode } = useSelector<ConnectState, MusicModelState>(
     (state) => state.musicPlayer,
   );
-
+  const { audioRef } = useModel('musicPlayer');
   const { taggerFull } = useModel('full');
   const { nextMode } = useMusicPlayer();
   const { paused, play, pause } = usePaused();
   const { pre, next } = useNext();
+  const { volume, setVolume } = useModel('volume');
 
   return (
     currentSong && (
       <div className={styles.noBorder}>
         <Card className={styles.fixCard}>
-          <Row gutter={10} align="middle">
-            <Col onClick={taggerFull}>
-              <Avatar
-                style={{ cursor: 'pointer' }}
-                size={50}
-                shape="square"
-                src={`${currentSong.al.picUrl}?param=100y100`}
-              />
-            </Col>
+          <Row align="middle">
             <Col span={6}>
-              <Row>
-                <Text>{currentSong.name}</Text>
-              </Row>
-              <Row>
-                <Text>{currentSong.ar.map((it) => it.name).join(' / ')}</Text>
+              <Row gutter={10} align="middle">
+                <Col onClick={taggerFull}>
+                  <Avatar
+                    style={{ cursor: 'pointer' }}
+                    size={50}
+                    shape="square"
+                    src={`${currentSong.al.picUrl}?param=100y100`}
+                  />
+                </Col>
+                <Col>
+                  <Row>
+                    <Text>{currentSong.name}</Text>
+                  </Row>
+                  <Row>
+                    <Text>{currentSong.ar.map((it) => it.name).join(' / ')}</Text>
+                  </Row>
+                </Col>
               </Row>
             </Col>
             <Col span={12} className={indexStyle.noneSelect}>
@@ -92,6 +97,32 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
                 </Col>
               </Row>
               <MiniSlider entireTime={~~((currentSong?.dt || 0) / 1000)} />
+            </Col>
+            <Col span={6}>
+              <Row align="middle">
+                <Col span={2}>
+                  <div
+                    style={{ backgroundImage: `url(${playerIcon})` }}
+                    className={`${styles.volumeIcon} ${styles.playerIcon}`}
+                    onClick={nextMode}
+                  />
+                </Col>
+                <Col span={10}>
+                  <Slider
+                    defaultValue={volume * 100}
+                    min={0}
+                    max={100}
+                    step={1}
+                    tipFormatter={null}
+                    onChange={(v: number) => {
+                      if (!audioRef.current) {
+                        return;
+                      }
+                      setVolume(v / 100);
+                    }}
+                  />
+                </Col>
+              </Row>
             </Col>
           </Row>
         </Card>

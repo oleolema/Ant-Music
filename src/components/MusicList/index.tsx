@@ -2,28 +2,31 @@ import React, { useState } from 'react';
 import { Avatar, Col, List, Row, Typography } from 'antd';
 import { Song } from '@/services/API';
 import style from './index.less';
-import { DownloadOutlined } from '@ant-design/icons/lib';
+import { CloseOutlined, DownloadOutlined } from '@ant-design/icons/lib';
 import { getTime } from '@/pages/MusicPlayer';
 import useMusicPlayer from '@/hooks/useMusicPlayer';
 import VirtualList from '../VirtualList';
-
-interface MusicListProps {
-  list: Song[];
-  loading?: boolean;
-  onMore?: () => boolean;
-}
+import { downloadSong } from '@/utils/utils';
 
 // 大于该值使用虚拟列表
-const VIRTUAL_MAX_NUM = 1000;
+const VIRTUAL_MAX_NUM = 150;
 
 console.info(style);
-const ListItem = (
-  item: Song,
-  onClick?: () => void,
-  index?: number,
-  key?: string,
-  styl: any = {},
-) => (
+const ListItem = ({
+  item,
+  onClick,
+  index,
+  key,
+  styl = {},
+  onDeleteItem,
+}: {
+  item: Song;
+  onClick?: () => void;
+  index?: number;
+  key?: string;
+  styl?: any;
+  onDeleteItem?: (song: Song, index: number) => void;
+}) => (
   <Row
     align="middle"
     style={{ ...styl, height: '3em' }}
@@ -55,14 +58,53 @@ const ListItem = (
         {item.al.name}
       </Typography.Text>
     </Col>
-    <Col span={2}>{item.al.picUrl ? getTime(item.dt / 1000) : '时长'}</Col>
-    <Col span={2}>{item.al.picUrl ? <DownloadOutlined style={{ cursor: 'pointer' }} /> : ''}</Col>
+    <Col span={2}>{item.id ? getTime(item.dt / 1000) : '时长'}</Col>
+    <Col
+      span={1}
+      onClick={(event) => {
+        event.stopPropagation();
+        downloadSong(item);
+      }}
+    >
+      {item.id ? <DownloadOutlined style={{ cursor: 'pointer' }} /> : ''}
+    </Col>
+    {onDeleteItem && (
+      <Col span={1}>
+        {item.id ? (
+          <CloseOutlined
+            style={{ cursor: 'pointer' }}
+            onClick={(event) => {
+              event.stopPropagation();
+              onDeleteItem(item, index!);
+            }}
+          />
+        ) : (
+          ''
+        )}
+      </Col>
+    )}
   </Row>
 );
 
-export default function <T>({ list, loading = false, onMore = () => false }: MusicListProps) {
+export type ClickType = 'insert' | 'replace';
+
+interface MusicListProps {
+  list: Song[];
+  loading?: boolean;
+  onMore?: () => boolean;
+  clickType?: ClickType;
+  onDeleteItem?: (song: Song, index: number) => void;
+}
+
+export default function <T>({
+  list,
+  loading = false,
+  onMore = () => false,
+  clickType = 'replace',
+  onDeleteItem,
+}: MusicListProps) {
   const [internalLoading] = useState(false);
-  const { setPlayListAndSongId } = useMusicPlayer();
+  const { setPlayListAndSongId, insertSong } = useMusicPlayer();
 
   return (
     <div>
@@ -70,23 +112,28 @@ export default function <T>({ list, loading = false, onMore = () => false }: Mus
         <VirtualList
           rowCount={list.length}
           rowRenderer={({ index, key, style }: any) => {
-            return ListItem(
-              list[index],
-              () =>
-                setPlayListAndSongId({
-                  playList: list,
-                  songId: list[index].id,
-                }),
-              index + 1,
-              key,
-              style,
-            );
+            return ListItem({
+              item: list[index],
+              onClick: () =>
+                clickType === 'insert'
+                  ? insertSong(list[index])
+                  : setPlayListAndSongId({
+                      playList: list,
+                      songId: list[index].id,
+                    }),
+              index: index + 1,
+              key: key,
+              styl: style,
+              onDeleteItem,
+            });
           }}
           header={ListItem({
-            name: '音乐标题',
-            ar: [{ name: '歌手' }],
-            al: { name: '专辑' },
-          } as Song)}
+            item: {
+              name: '音乐标题',
+              ar: [{ name: '歌手' }],
+              al: { name: '专辑' },
+            } as Song,
+          })}
           loading={internalLoading || loading}
         />
       ) : (
@@ -95,22 +142,27 @@ export default function <T>({ list, loading = false, onMore = () => false }: Mus
           itemLayout="horizontal"
           dataSource={list}
           header={ListItem({
-            name: '音乐标题',
-            ar: [{ name: '歌手' }],
-            al: { name: '专辑' },
-          } as Song)}
+            item: {
+              name: '音乐标题',
+              ar: [{ name: '歌手' }],
+              al: { name: '专辑' },
+            } as Song,
+          })}
           size="small"
-          renderItem={(item, index) =>
-            ListItem(
+          renderItem={(item, index) => {
+            return ListItem({
               item,
-              () =>
-                setPlayListAndSongId({
-                  playList: list,
-                  songId: item.id,
-                }),
-              index + 1,
-            )
-          }
+              onClick: () =>
+                clickType === 'insert'
+                  ? insertSong(item)
+                  : setPlayListAndSongId({
+                      playList: list,
+                      songId: item.id,
+                    }),
+              index: index + 1,
+              onDeleteItem,
+            });
+          }}
         />
       )}
     </div>

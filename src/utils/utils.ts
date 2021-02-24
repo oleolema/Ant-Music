@@ -1,4 +1,8 @@
 /* eslint no-useless-escape:0 import/prefer-default-export:0 */
+import { Song } from '@/services/API';
+import { message } from 'antd';
+import { songUrl } from '@/services/song';
+
 const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/;
 
 export const isUrl = (path: string): boolean => reg.test(path);
@@ -25,3 +29,52 @@ export function split(a: any[], k: number) {
     .map((_, i) => [i * k, (i + 1) * k])
     .concat([[len * k, len * k + (a.length % k)]]);
 }
+
+export function download(url: string, filename: string, ended?: () => void) {
+  function downloadFile(content: any, filename: string) {
+    const a = document.createElement('a');
+    const blob = new Blob([content]);
+    const url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+  function ajax(url: string, callback: (xhr: XMLHttpRequest) => void, options: any) {
+    window.URL = window.URL || window.webkitURL;
+    const xhr = new XMLHttpRequest();
+    xhr.open('get', url, true);
+    if (options.responseType) {
+      xhr.responseType = options.responseType;
+    }
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        callback(xhr);
+      }
+    };
+    xhr.send();
+  }
+  ajax(
+    url,
+    function (xhr) {
+      downloadFile(xhr.response, filename);
+      ended && ended();
+    },
+    {
+      responseType: 'blob',
+    },
+  );
+}
+
+export const downloadSong = (song: Song) => {
+  const close = message.loading('下载中...', 9999);
+  songUrl([song.id]).then((res) => {
+    console.info(res);
+    const url = res?.data?.data[0]?.url;
+    if (!url) {
+      message.error('歌曲下载失败');
+      return;
+    }
+    download(url, `${song.name} - ${song.ar.map((it) => it.name).join(' / ')}}.mp3`, close);
+  });
+};
