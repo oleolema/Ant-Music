@@ -4,4 +4,12 @@
 .listItem:hover {
   background-color: #f1f1f1;
 }
+.virtualList :focus {
+  outline: none;
+}
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 /*# sourceMappingURL=index.css.map */

@@ -2,18 +2,21 @@ import React, { useMemo, useState } from 'react';
 import useLocationState from '@/hooks/useLocationState';
 import { useRequest } from '@@/plugin-request/request';
 import { playlistDetail } from '@/services/disc';
-import { Avatar, Button, Card, Col, Image, Row, Space, Tag } from 'antd';
+import { Avatar, Button, Col, Image, Row, Space, Tag } from 'antd';
 import Title from 'antd/es/typography/Title';
 import Paragraph from 'antd/es/typography/Paragraph';
 import { PlayCircleOutlined, UserOutlined } from '@ant-design/icons/lib';
 import { DiscMusicData } from '@/data/DiscMusicData';
 import { songDetail } from '@/services/song';
-import { Song, SongDetailData } from '@/services/API';
+import { SongDetailData } from '@/services/API';
 import MusicList from '@/components/MusicList';
 import moment from 'moment';
+import useMusicPlayer from '@/hooks/useMusicPlayer';
+
+export type ListType = 'disc' | 'artist';
 
 export default function <T>() {
-  const { loading, run } = useRequest(playlistDetail, {
+  const { loading: playlistDetailLoading, run: playlistDetailRun } = useRequest(playlistDetail, {
     manual: true,
   });
 
@@ -21,7 +24,9 @@ export default function <T>() {
     manual: true,
   });
 
-  songList = useMemo(() => (songList as SongDetailData)?.songs || [], [songList]);
+  const { setPlayListAndPlay } = useMusicPlayer();
+
+  const songs = useMemo(() => (songList as SongDetailData)?.songs || [], [songList]);
 
   const [discData, setDiscData] = useState<DiscMusicData>();
 
@@ -30,7 +35,7 @@ export default function <T>() {
       if (id == -1) {
         return;
       }
-      run(id).then((res) => {
+      playlistDetailRun(id).then((res) => {
         const data = res as DiscMusicData;
         console.info(res);
         setDiscData(data);
@@ -42,7 +47,7 @@ export default function <T>() {
   );
 
   return (
-    <Card>
+    <>
       <Row>
         <Col span={5}>
           <Image src={discData?.playlist.coverImgUrl} />
@@ -60,10 +65,14 @@ export default function <T>() {
                 />
               </Col>
               <Col>{discData?.playlist.creator.nickname}</Col>
-              <Col>{moment(discData?.playlist.createTime).format('lll')}</Col>
+              <Col>{moment(discData?.playlist.updateTime).format('lll')}</Col>
             </Row>
             <Row>
-              <Button type="primary">
+              <Button
+                type="primary"
+                onClick={() => setPlayListAndPlay(songs)}
+                disabled={!songs || songs.length === 0}
+              >
                 <PlayCircleOutlined />
                 播放全部
               </Button>
@@ -81,7 +90,7 @@ export default function <T>() {
           </Space>
         </Col>
       </Row>
-      <MusicList loading={songListLoading || loading} list={songList as Song[]} />
-    </Card>
+      <MusicList loading={songListLoading || playlistDetailLoading} list={songs} />
+    </>
   );
 }

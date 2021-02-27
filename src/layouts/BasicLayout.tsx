@@ -1,10 +1,41 @@
-import React from "react";
-import MusicPlayer from "@/pages/MusicPlayer";
+import React, { useEffect, useRef } from 'react';
+import MusicPlayer from '@/pages/MusicPlayer';
+import { Card } from 'antd';
+import { useModel } from '@@/plugin-model/useModel';
+import { useLocation } from 'umi';
+import { Scrollbars } from 'react-custom-scrollbars';
 
-const BasicLayout: React.FC = ({children}) => {
+const BasicLayout: React.FC = ({ children }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { contentHeight } = useModel('miniMusic');
+  const location = useLocation();
+  const { setFull } = useModel('full');
 
-  return <>{children}
-    <MusicPlayer/>
-  </>
-}
+  useEffect(() => {
+    setFull(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    // @ts-ignore
+    scrollRef.current = document.querySelector(`#baseLayout div`);
+    console.info(scrollRef.current);
+  }, []);
+
+  return (
+    <Scrollbars
+      id="baseLayout"
+      className="baseLayout"
+      style={{
+        height: contentHeight,
+        width: '100%',
+      }}
+      hideTracksWhenNotNeeded
+    >
+      <Card>
+        {children}
+        <MusicPlayer />
+      </Card>
+    </Scrollbars>
+  );
+};
 export default BasicLayout;

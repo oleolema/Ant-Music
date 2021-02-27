@@ -4,7 +4,7 @@ export default {
   navTheme: 'light',
   // 拂晓蓝
   primaryColor: '#db639b',
-  layout: 'side',
+  layout: 'top',
   contentWidth: 'Fluid',
   fixedHeader: true,
   fixSiderbar: true,

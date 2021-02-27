@@ -2,8 +2,11 @@ import { Effect } from 'umi';
 import { Song } from '@/services/API';
 import { Reducer } from '@@/plugin-dva/connect';
 import _ from 'lodash';
+import { ConnectState } from '@/models/connect';
+import store2 from 'store2';
 
 export type PlayType = 'cycle' | 'random' | 'single';
+const store = store2.namespace('music');
 
 export interface MusicModelState {
   index: number;
@@ -11,17 +14,17 @@ export interface MusicModelState {
   originList: Song[];
   mode: PlayType;
   currentSong: Song | null;
-  isFull: boolean;
+  autoPlay: boolean;
 }
 
-const initMusicState: MusicModelState = {
+const initMusicState: MusicModelState = store.getAll({
   index: -1,
   playList: [],
   originList: [],
   mode: 'cycle',
   currentSong: null,
-  isFull: false,
-};
+  autoPlay: true,
+}) as MusicModelState;
 
 export interface MusicModelType {
   namespace: 'musicPlayer';
@@ -41,9 +44,59 @@ const MusicModel: MusicModelType = {
   state: initMusicState,
 
   effects: {
+    *deleteSongFromPlayList({ payload }, { call, put, select }) {
+      const { playList, index }: MusicModelState = yield select(
+        (state: ConnectState) => state.musicPlayer,
+      );
+      yield put({
+        type: 'setPlayList',
+        payload: playList.filter((it, i) => {
+          if (it.id === payload.id) {
+            if (i === index) {
+              put({ type: 'next' });
+            }
+            return false;
+          }
+          return true;
+        }),
+      });
+    },
+    *setPlayListAndPlay({ payload }, { call, put, select }) {
+      yield put({ type: 'setPlayList', payload: payload });
+      const { playList }: MusicModelState = yield select(
+        (state: ConnectState) => state.musicPlayer,
+      );
+      yield put({ type: 'setCurrentSongId', payload: playList[0].id });
+    },
     *setPlayListAndCurrentSongId({ payload }, { call, put }) {
       yield put({ type: 'setPlayList', payload: payload.playList });
       yield put({ type: 'setCurrentSongId', payload: payload.songId });
+    },
+    *insertSong({ payload }, { call, put, select }) {
+      const { playList, index }: MusicModelState = yield select(
+        (state: ConnectState) => state.musicPlayer,
+      );
+      if (playList.find((it) => it.id === payload.id)) {
+        yield put({ type: 'setCurrentSongId', payload: payload.id });
+        return;
+      } else {
+        playList.splice(index + 1, 0, payload);
+        yield put({
+          type: 'setPlayListAndCurrentSongId',
+          payload: { playList, songId: payload.id },
+        });
+      }
+    },
+    *setCurrentSongId({ payload }, { call, put, select }) {
+      const { playList }: MusicModelState = yield select(
+        (state: ConnectState) => state.musicPlayer,
+      );
+      const i = playList.findIndex((it) => it.id === payload);
+      if (i === -1) {
+        console.error('未找到该歌曲: ' + payload, playList);
+      }
+      console.info(playList[i]);
+      yield put({ type: 'setIndex', payload: i });
     },
     *setMode({ payload }, { call, put }) {
       yield put({ type: 'save', payload: { mode: payload } });
@@ -63,6 +116,9 @@ const MusicModel: MusicModelType = {
     },
     next(state = initMusicState, { payload, audioRef }) {
       const { playList, index } = state;
+      if (!playList.length) {
+        return state;
+      }
       const i = (index + 1) % playList.length;
       return {
         ...state,
@@ -72,6 +128,9 @@ const MusicModel: MusicModelType = {
     },
     pre(state = initMusicState, { payload, audioRef }) {
       const { playList, index } = state;
+      if (!playList.length) {
+        return state;
+      }
       const i = (index - 1 + playList.length) % playList.length;
       return {
         ...state,
@@ -79,16 +138,11 @@ const MusicModel: MusicModelType = {
         currentSong: playList[i],
       };
     },
-    setCurrentSongId(state = initMusicState, { payload }) {
-      console.info(state);
-      const i = state.playList.findIndex((it) => it.id === payload);
-      if (i === -1) {
-        console.error('未找到该歌曲: ' + payload, state.playList);
-      }
+    setIndex(state = initMusicState, { payload }) {
       return {
         ...state,
-        index: i,
-        currentSong: state.playList[i],
+        index: payload,
+        currentSong: state.playList[payload],
       };
     },
     setPlayList(state = initMusicState, { payload }) {
@@ -121,22 +175,8 @@ const MusicModel: MusicModelType = {
           return { ...state, mode: 'cycle' };
       }
     },
-    setFull(state = initMusicState, { payload }) {
-      if (payload) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
-      }
-      return { ...state, isFull: payload };
-    },
-    taggerFull(state = initMusicState, { payload }) {
-      const { isFull } = state;
-      // if (!isFull) {
-      //   document.body.style.overflow = 'hidden';
-      // } else {
-      //   document.body.style.overflow = '';
-      // }
-      return { ...state, isFull: !isFull };
+    setAutoPlay(state = initMusicState, { payload }) {
+      return { ...state, autoPlay: payload };
     },
   },
   subscriptions: {},

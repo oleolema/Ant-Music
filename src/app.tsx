@@ -1,13 +1,13 @@
 import React from 'react';
-import {BasicLayoutProps, Settings as LayoutSettings} from '@ant-design/pro-layout';
-import {notification} from 'antd';
-import {history, RequestConfig} from 'umi';
+import { BasicLayoutProps, Settings as LayoutSettings } from '@ant-design/pro-layout';
+import { notification } from 'antd';
+import { history, RequestConfig } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import {ResponseError} from 'umi-request';
+import { ResponseError } from 'umi-request';
 import defaultSettings from '../config/defaultSettings';
-import {API} from "@/services/API";
-import logo from '@/assets/music8.png'
+import { API } from '@/services/API';
+import logo from '@/assets/music8.png';
 
 // @ts-ignore
 // const TitleBar = window.CustomElectronTitlebar;
@@ -45,15 +45,15 @@ export async function getInitialState(): Promise<{
 }
 
 export const layout = ({
-                         initialState,
-                       }: {
+  initialState,
+}: {
   initialState: { settings?: LayoutSettings; currentUser?: API.CurrentUser };
 }): BasicLayoutProps => {
   return {
-    rightContentRender: () => <RightContent/>,
+    rightContentRender: () => <RightContent />,
     logo: logo,
     disableContentMargin: false,
-    footerRender: () => <Footer/>,
+    footerRender: () => null,
     onPageChange: () => {
       // const {currentUser} = initialState;
       // const {location} = history;
@@ -86,10 +86,10 @@ const codeMessage = {
  * 异常处理程序
  */
 const errorHandler = (error: ResponseError) => {
-  const {response} = error;
+  const { response } = error;
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
-    const {status, url} = response;
+    const { status, url } = response;
 
     notification.error({
       message: `请求错误 ${status}: ${url}`,
@@ -117,7 +117,4 @@ export const request: RequestConfig = {
       };
     },
   },
-
 };
-
-

@@ -52,4 +52,10 @@ export default {
   'menu.recommend': '推荐',
   'menu.recommend.disc': '推荐歌单',
   'menu.music-list': '歌曲列表',
+  'menu.history': '播放历史',
+  'menu.playing': '正在播放',
+  'menu.rankingList': '排行榜',
+  'menu.rankingList.musicRanking': '歌曲榜',
+  'menu.rankingList.artistRanking': '歌手榜',
+  'menu.search': '搜索',
 };
