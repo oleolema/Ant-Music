@@ -29,6 +29,11 @@ export default [
         hideInMenu: true,
       },
       {
+        path: '/search',
+        component: './Search/index',
+        hideInMenu: true,
+      },
+      {
         path: '/history',
         name: 'history',
         icon: 'history',

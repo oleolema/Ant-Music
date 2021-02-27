@@ -3,8 +3,10 @@ import { Song } from '@/services/API';
 import { Reducer } from '@@/plugin-dva/connect';
 import _ from 'lodash';
 import { ConnectState } from '@/models/connect';
+import store2 from 'store2';
 
 export type PlayType = 'cycle' | 'random' | 'single';
+const store = store2.namespace('music');
 
 export interface MusicModelState {
   index: number;
@@ -12,15 +14,17 @@ export interface MusicModelState {
   originList: Song[];
   mode: PlayType;
   currentSong: Song | null;
+  autoPlay: boolean;
 }
 
-const initMusicState: MusicModelState = {
+const initMusicState: MusicModelState = store.getAll({
   index: -1,
   playList: [],
   originList: [],
   mode: 'cycle',
   currentSong: null,
-};
+  autoPlay: true,
+}) as MusicModelState;
 
 export interface MusicModelType {
   namespace: 'musicPlayer';
@@ -170,6 +174,9 @@ const MusicModel: MusicModelType = {
         case 'single':
           return { ...state, mode: 'cycle' };
       }
+    },
+    setAutoPlay(state = initMusicState, { payload }) {
+      return { ...state, autoPlay: payload };
     },
   },
   subscriptions: {},

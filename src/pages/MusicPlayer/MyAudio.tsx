@@ -9,22 +9,31 @@ import { message } from 'antd';
 import { useSelector } from '@@/plugin-dva/exports';
 import { ConnectState } from '@/models/connect';
 import { MusicModelState } from '@/models/musicModel';
+import store2 from 'store2';
+import useMusicPlayer from '@/hooks/useMusicPlayer';
+
+const store = store2.namespace('music');
 
 export default () => {
-  const { currentSong, playList } = useSelector<ConnectState, MusicModelState>(
-    (state) => state.musicPlayer,
-  );
+  const musicPlayer = useSelector<ConnectState, MusicModelState>((state) => state.musicPlayer);
+  const { currentSong, playList, autoPlay } = musicPlayer;
   const { audioRef } = useModel('musicPlayer');
   const { setDatum } = useModel('datum');
   const { setCurrentSecond } = useModel('currentSecond');
   const { addHistory } = useModel('historyList');
   const { volume } = useModel('volume');
+  const { setMiniVisible } = useModel('miniMusic');
   const { lyricObj, lyricPause, lyricPlay, setLyric } = useModel('lyricObj');
   const { next } = useNext();
-  const { setPaused } = usePaused();
+  const { setAutoPlay } = useMusicPlayer();
+  const { setPaused, pause } = usePaused();
   const { run: songDataRun } = useRequest(songUrl, {
     manual: true,
   });
+
+  useEffect(() => {
+    store.setAll({ ...musicPlayer, autoPlay: !Boolean(currentSong?.id) });
+  }, [musicPlayer]);
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -32,6 +41,7 @@ export default () => {
     }
     if (playList.length === 0) {
       audioRef.current.src = '';
+      setMiniVisible(false);
     }
   }, [playList]);
 
@@ -91,6 +101,7 @@ export default () => {
     let timer0: NodeJS.Timeout;
     let timer1: NodeJS.Timeout;
     let closed = false;
+
     Promise.all([songDataRun([currentSong.id]), lyric(currentSong.id)]).then(
       ([res, lyric]: [any, LyricData]) => {
         const data = res as SongData;
@@ -100,9 +111,12 @@ export default () => {
           const datum = (data.data[0] as unknown) as Datum;
           setDatum(datum);
           // @ts-ignore
-          setLyric(lyric.data.nolyric ? '' : lyric.data.lrc.lyric, lyric.data.tlyric.lyric);
+          setLyric(lyric.data?.nolyric ? '' : lyric.data?.lrc?.lyric, lyric.data?.tlyric?.lyric);
           setTimeout(() => {
             audioRef.current!.src = datum.url;
+            setTimeout(() => {
+              setAutoPlay(true);
+            }, 200);
           });
           if (!datum.url) {
             message.error('无版权或为付费歌曲, 3秒后播放下一首');
@@ -120,8 +134,12 @@ export default () => {
       closed = true;
       clearTimeout(timer0);
       clearTimeout(timer1);
+      pause();
+      audioRef.current && (audioRef.current.src = '');
+      setCurrentSecond(0);
+      setLyric('');
     };
   }, [currentSong?.id]);
 
-  return <audio ref={audioRef} autoPlay />;
+  return <audio ref={audioRef} autoPlay={autoPlay} />;
 };

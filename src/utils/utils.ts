@@ -75,6 +75,54 @@ export const downloadSong = (song: Song) => {
       message.error('歌曲下载失败');
       return;
     }
-    download(url, `${song.name} - ${song.ar.map((it) => it.name).join(' / ')}}.mp3`, close);
+    download(url, `${song.name} - ${song.ar.map((it) => it.name).join(' / ')}.mp3`, close);
   });
 };
+
+export function scrollOptions(element: HTMLDivElement) {
+  var keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
+
+  function preventDefault(e: Event) {
+    if (e.preventDefault) e.preventDefault();
+    e.returnValue = false;
+  }
+
+  // @ts-ignore
+  function preventDefaultForScrollKeys(e) {
+    if (keys[e.keyCode]) {
+      preventDefault(e);
+      return false;
+    }
+  }
+
+  let oldonwheel: any, oldontouchmove: any, oldonkeydown: any;
+  let isDisabled: boolean;
+
+  function disableScroll() {
+    if (element.addEventListener)
+      // older FF
+      element.addEventListener('DOMMouseScroll', preventDefault, false);
+    oldonwheel = element.onwheel;
+    element.onwheel = preventDefault; // modern standard
+    oldontouchmove = element.ontouchmove;
+    element.ontouchmove = preventDefault; // mobile
+    oldonkeydown = document.onkeydown;
+    document.onkeydown = preventDefaultForScrollKeys;
+    isDisabled = true;
+  }
+
+  function enableScroll() {
+    if (!isDisabled) return;
+    if (element.removeEventListener)
+      element.removeEventListener('DOMMouseScroll', preventDefault, false);
+    element.onwheel = oldonwheel; // modern standard
+    element.ontouchmove = oldontouchmove; // mobile
+    document.onkeydown = oldonkeydown;
+    isDisabled = false;
+  }
+
+  return {
+    disableScroll,
+    enableScroll,
+  };
+}

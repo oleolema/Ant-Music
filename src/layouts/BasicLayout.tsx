@@ -7,7 +7,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 const BasicLayout: React.FC = ({ children }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { miniVisible } = useModel('miniMusic');
+  const { contentHeight } = useModel('miniMusic');
   const location = useLocation();
   const { setFull } = useModel('full');
 
@@ -26,7 +26,7 @@ const BasicLayout: React.FC = ({ children }) => {
       id="baseLayout"
       className="baseLayout"
       style={{
-        height: `calc(100vh ${miniVisible ? '- 77px' : ''} - 48px)`,
+        height: contentHeight,
         width: '100%',
       }}
       hideTracksWhenNotNeeded

@@ -7,6 +7,7 @@ import anime from 'animejs';
 import { useModel } from '@@/plugin-model/useModel';
 import Scroll from '@/components/MyScroll';
 import { Col, Image, Row } from 'antd';
+import { useSize } from 'ahooks';
 
 export interface SongDetail {
   currentTime: number;
@@ -23,6 +24,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
   const scrollRef = useRef<{ scrollToElement: any; scrollTo: any; scrollRef: any }>(null);
   // @ts-ignore
   const [visible, setVisible] = useState(false);
+  const { height = innerHeight } = useSize(document.body);
 
   useEffect(() => {
     Array.from(lyricLinesRef.current?.children || []).forEach(
@@ -67,7 +69,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
     } else {
       anime({
         targets: '.animeBaseFull',
-        translateY: window.innerHeight + 100,
+        translateY: height + 100,
         easing: 'spring(1, 100, 15, 5)',
         opacity: 0.5,
       });
@@ -88,7 +90,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
       {currentSong && (
         <div
           className={`${styles.baseFull} animeBaseFull `}
-          style={{ transform: `translateY(${window.innerHeight + 100}px)` }}
+          style={{ transform: `translateY(${height + 100}px)` }}
         >
           <div className={styles.backgroundColor} />
           <div

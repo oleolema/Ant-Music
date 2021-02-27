@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar, Card, Col, Row, Slider } from 'antd';
 import styles from './index.less';
 import Text from 'antd/es/typography/Text';
@@ -30,9 +30,9 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
     currentSong && (
       <div className={styles.noBorder}>
         <Card className={styles.fixCard}>
-          <Row align="middle">
+          <Row align="middle" gutter={20}>
             <Col span={6}>
-              <Row gutter={10} align="middle">
+              <Row gutter={10} align="middle" style={{ flexWrap: 'nowrap', overflow: 'hidden' }}>
                 <Col onClick={taggerFull}>
                   <Avatar
                     style={{ cursor: 'pointer' }}
@@ -42,12 +42,12 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
                   />
                 </Col>
                 <Col>
-                  <Row>
-                    <Text>{currentSong.name}</Text>
-                  </Row>
-                  <Row>
-                    <Text>{currentSong.ar.map((it) => it.name).join(' / ')}</Text>
-                  </Row>
+                  <div>
+                    <Text ellipsis>{currentSong.name}</Text>
+                  </div>
+                  <div>
+                    <Text ellipsis>{currentSong.ar.map((it) => it.name).join(' / ')}</Text>
+                  </div>
                 </Col>
               </Row>
             </Col>
@@ -100,14 +100,14 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
             </Col>
             <Col span={6}>
               <Row align="middle">
-                <Col span={2}>
+                <Col>
                   <div
                     style={{ backgroundImage: `url(${playerIcon})` }}
                     className={`${styles.volumeIcon} ${styles.playerIcon}`}
                     onClick={nextMode}
                   />
                 </Col>
-                <Col span={10}>
+                <Col lg={{ span: 10 }} span={16}>
                   <Slider
                     defaultValue={volume * 100}
                     min={0}
@@ -144,6 +144,10 @@ function MiniSlider({ entireTime }: MiniSliderType) {
   const { paused, play } = usePaused();
   const sliderRef = useRef<any>(null);
 
+  useEffect(() => {
+    setSliding(false);
+  }, [paused, lyricObj]);
+
   console.info(currentSecond, sliderValue, sliding);
 
   return (
@@ -159,6 +163,7 @@ function MiniSlider({ entireTime }: MiniSliderType) {
           onChange={(v: number) => {
             setSliderValue(v);
             setSliding(true);
+            console.info('asdf');
           }}
           onAfterChange={(v: number) => {
             audioRef.current!.currentTime = v;

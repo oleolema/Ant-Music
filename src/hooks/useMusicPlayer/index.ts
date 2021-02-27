@@ -31,5 +31,6 @@ export default () => {
       audioRef.current?.play();
     }, []),
     nextMode: useCallback(() => dispatch('nextMode'), []),
+    setAutoPlay: useCallback((b: boolean) => dispatch('setAutoPlay', b), []),
   };
 };

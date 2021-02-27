@@ -81,11 +81,18 @@ export interface H {
 }
 
 export interface SearchData {
+  result: SearchResult;
+}
+export interface SearchResult {
   songs: Song[];
   songCount: number;
 }
 
 export interface SearchSuggestData {
+  result: SearchSuggestResult;
+}
+
+export interface SearchSuggestResult {
   albums: AlbumSuggest[];
   artists: ArtistSuggest[];
   songs: SongSuggest[];
@@ -182,8 +189,12 @@ export const artistSongs = (id: number): Promise<ArtistData> =>
   http.get('/api/netease/artist/songs', { params: { id } });
 
 // type: 搜索类型；默认为 1 即单曲 , 取值意义 : 1: 单曲, 10: 专辑, 100: 歌手, 1000: 歌单, 1002: 用户, 1004: MV, 1006: 歌词, 1009: 电台, 1014: 视频, 1018:综合
-export const cloudSearch = (keywords: string, type: number = 1): Promise<any> =>
-  http.get('/api/netease/cloudsearch', { params: { keywords, type } });
+export const cloudSearch = (keywords: string, type: number = 1): Promise<SearchData> =>
+  http.get('/api/netease/cloudsearch', { params: { keywords: keywords.trim(), type } });
 
-export const searchSuggest = (keywords: string): Promise<any> =>
-  http.get('/api/netease/search/suggest', { params: { keywords } });
+export const searchSuggest = (keywords: string): Promise<SearchSuggestData | null> => {
+  if (!keywords) {
+    return Promise.resolve(null);
+  }
+  return http.get('/api/netease/search/suggest', { params: { keywords: keywords.trim() } });
+};

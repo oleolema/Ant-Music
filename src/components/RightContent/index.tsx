@@ -1,8 +1,7 @@
 import { Space } from 'antd';
-import { LeftOutlined } from '@ant-design/icons';
+import { LeftOutlined, SearchOutlined } from '@ant-design/icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useHistory, useModel } from 'umi';
-import HeaderSearch from '../HeaderSearch';
 import styles from './index.less';
 import {
   CloseOutlined,
@@ -10,14 +9,6 @@ import {
   FullscreenOutlined,
   MinusOutlined,
 } from '@ant-design/icons/lib';
-
-export type SiderTheme = 'light' | 'dark';
-
-const ENVTagColor = {
-  dev: 'orange',
-  test: 'green',
-  pre: '#87d068',
-};
 
 // @ts-ignore
 const currentWindow = window.electron?.remote.getCurrentWindow();
@@ -106,26 +97,22 @@ const GlobalHeaderRight: React.FC<{}> = () => {
 
   return (
     <Space className={className}>
-      <LeftOutlined className={styles.action} onClick={history.goBack} />
-      <HeaderSearch
-        className={`${styles.action} ${styles.search}`}
-        placeholder="站内搜索"
-        defaultValue="umi ui"
-        options={[
-          { label: <a href="https://umijs.org/zh/guide/umi-ui.html">umi ui</a>, value: 'umi ui' },
-          {
-            label: <a href="next.ant.design">Ant Design</a>,
-            value: 'Ant Design',
-          },
-          {
-            label: <a href="https://protable.ant.design/">Pro Table</a>,
-            value: 'Pro Table',
-          },
-          {
-            label: <a href="https://prolayout.ant.design/">Pro Layout</a>,
-            value: 'Pro Layout',
-          },
-        ]}
+      <LeftOutlined
+        style={{
+          cursor: 'pointer',
+        }}
+        className={styles.action}
+        onClick={history.goBack}
+      />
+      <SearchOutlined
+        key="Icon"
+        style={{
+          cursor: 'pointer',
+        }}
+        className={styles.action}
+        onClick={() => {
+          history.push('/search');
+        }}
       />
       {titleBar}
     </Space>

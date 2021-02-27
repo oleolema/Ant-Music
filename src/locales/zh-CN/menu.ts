@@ -57,4 +57,5 @@ export default {
   'menu.rankingList': '排行榜',
   'menu.rankingList.musicRanking': '歌曲榜',
   'menu.rankingList.artistRanking': '歌手榜',
+  'menu.search': '搜索',
 };

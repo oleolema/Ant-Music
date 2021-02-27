@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import style from './index.less';
 // @ts-ignore
 import VList from 'react-virtualized/dist/commonjs/List';
 // @ts-ignore
-import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
-// @ts-ignore
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { Spin } from 'antd';
+import { useModel } from '@@/plugin-model/useModel';
 
 interface VirtualListProps {
   rowCount: number;
@@ -21,6 +20,19 @@ const VirtualList = function <T>({
   header,
   loading = false,
 }: VirtualListProps) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const listWrapperRef = useRef<HTMLDivElement>(null);
+
+  const { contentHeight } = useModel('miniMusic');
+
+  useEffect(() => {
+    if (!listWrapperRef.current) {
+      return;
+    }
+    // @ts-ignore
+    listRef.current = listWrapperRef.current.querySelector('.ReactVirtualized__List');
+  }, [listWrapperRef]);
+
   const vList = ({ height, isScrolling, onChildScroll, scrollTop, onRowsRendered, width }: any) => (
     <VList
       autoHeight
@@ -57,7 +69,7 @@ const VirtualList = function <T>({
   };
 
   return (
-    <div className={style.virtualList}>
+    <div className={style.virtualList} ref={listWrapperRef}>
       {/*<div className="ant-list-header" style={{ borderBottom: '1px solid #f0f0f0' }}>*/}
       {/*  {header}*/}
       {/*</div>*/}
@@ -65,8 +77,7 @@ const VirtualList = function <T>({
       <AutoSizer disableHeight>
         {({ width }: any) => (
           <VList
-            ref="List"
-            height={731}
+            height={contentHeight - 24}
             overscanRowCount={2}
             noRowsRenderer={() => <>暂无数据</>}
             rowCount={rowCount}
