@@ -19,7 +19,6 @@ export default () => {
   const { currentSong, playList, autoPlay } = musicPlayer;
   const { audioRef } = useModel('musicPlayer');
   const { setDatum } = useModel('datum');
-  const { setCurrentSecond } = useModel('currentSecond');
   const { addHistory } = useModel('historyList');
   const { volume } = useModel('volume');
   const { setMiniVisible } = useModel('miniMusic');
@@ -70,24 +69,15 @@ export default () => {
       lyricPlay();
       console.info('play', lyricObj);
     };
-    // 当前时间
-    const onTimeUpdate = () => {
-      setCurrentSecond((it) => {
-        if (it === ~~audioRef.current!.currentTime) {
-          return it;
-        }
-        return ~~audioRef.current!.currentTime;
-      });
-    };
+
     audioRef.current.addEventListener('pause', onPause);
     audioRef.current.addEventListener('play', onPlay);
     audioRef.current?.addEventListener('ended', next);
-    audioRef.current.addEventListener('timeupdate', onTimeUpdate);
+
     return () => {
       audioRef.current?.removeEventListener('pause', onPause);
       audioRef.current?.removeEventListener('play', onPlay);
       audioRef.current?.removeEventListener('ended', next);
-      audioRef.current?.removeEventListener('timeupdate', onTimeUpdate);
     };
   }, [audioRef, lyricObj, next]);
 
@@ -116,7 +106,7 @@ export default () => {
             audioRef.current!.src = datum.url;
             setTimeout(() => {
               setAutoPlay(true);
-            }, 200);
+            }, 500);
           });
           if (!datum.url) {
             message.error('无版权或为付费歌曲, 3秒后播放下一首');
@@ -136,7 +126,6 @@ export default () => {
       clearTimeout(timer1);
       pause();
       audioRef.current && (audioRef.current.src = '');
-      setCurrentSecond(0);
       setLyric('');
     };
   }, [currentSong?.id]);

@@ -63,6 +63,12 @@ export default [
         ],
       },
       {
+        path: '/share',
+        name: 'shareMusic',
+        icon: 'ShareAlt',
+        component: './ShareMusic/index',
+      },
+      {
         component: './404',
       },
     ],

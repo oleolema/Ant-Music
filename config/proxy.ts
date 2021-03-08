@@ -12,5 +12,10 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
-  }
+    '/api/netease/websocket': {
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      pathRewrite: { '^': '' },
+    },
+  },
 };

@@ -95,20 +95,20 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
           <div className={styles.backgroundColor} />
           <div
             className={styles.backgroundImage}
-            style={{ backgroundImage: `url(${currentSong.al.picUrl}?param=100y100)` }}
+            style={{ backgroundImage: `url(${currentSong.al?.picUrl}?param=100y100)` }}
           />
 
           <div className={styles.fullCard}>
             <Row style={{ padding: '24px 0' }}>
               <Col
-                offset={1}
                 className={styles.cover}
-                span={10}
+                md={{ span: 10, offset: 1 }}
+                xs={{ span: 0 }}
                 style={{ textAlign: 'center', alignSelf: 'center' }}
               >
-                <Image src={`${currentSong.al.picUrl}`} width="70%" height="auto" />
+                <Image src={`${currentSong.al?.picUrl}`} width="70%" height="auto" />
               </Col>
-              <Col offset={1} span={12}>
+              <Col md={{ span: 12, offset: 1 }} xs={{ span: 24 }}>
                 <Scroll
                   reference={scrollRef}
                   click={true}

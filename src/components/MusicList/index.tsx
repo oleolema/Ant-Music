@@ -11,6 +11,7 @@ import { useSelector } from '@@/plugin-dva/exports';
 import { ConnectState } from '@/models/connect';
 import { MusicModelState } from '@/models/musicModel';
 import ware from '@/assets/wave.gif';
+import useCanSetMusic from '@/hooks/useMusicPlayer/useCanSetMusic';
 
 // 大于该值使用虚拟列表
 const VIRTUAL_MAX_NUM = 301;
@@ -32,69 +33,77 @@ const ListItem = ({
   styl?: any;
   onDeleteItem?: (song: Song, index: number) => void;
   currentSong?: Song | null;
-}) => (
-  <Row
-    align="middle"
-    style={{ ...styl, height: '3em' }}
-    className={item.al.picUrl ? style.listItem : ''}
-    key={key || item.id}
-    gutter={10}
-    onClick={() => onClick && onClick()}
-  >
-    {currentSong && currentSong?.id === item.id ? (
-      <Col span={1}>
-        <img style={{ marginLeft: '2px', filter: 'brightness(0)' }} src={ware} alt="" />
-      </Col>
-    ) : (
-      <Col span={1}>{index}</Col>
-    )}
-    <Col span={1}>
-      {item.al.picUrl ? (
-        <img
-          src={`${item.al.picUrl}?param=30y30`}
-          style={{ width: 30, height: 30, borderRadius: 25, padding: 2 }}
-          alt=""
-        />
-      ) : (
-        <img style={{ opacity: 0 }} alt="" />
-      )}
-    </Col>
-    <Col span={8} className={style.ellipsis}>
-      {item.name}
-    </Col>
-    <Col span={5} className={style.ellipsis}>
-      {item.ar.map((it) => it.name).join(' / ')}
-    </Col>
-    <Col span={5} className={style.ellipsis}>
-      {item.al.name}
-    </Col>
-    <Col span={2}>{item.id ? getTime(item.dt / 1000) : '时长'}</Col>
-    <Col
-      span={1}
-      onClick={(event) => {
-        event.stopPropagation();
-        downloadSong(item);
-      }}
+}) => {
+  const isClose = onDeleteItem && typeof index === 'number';
+  return (
+    <Row
+      align="middle"
+      style={{ ...styl, height: '3em' }}
+      className={item.al?.picUrl ? style.listItem : ''}
+      key={key || item.id}
+      gutter={10}
+      onClick={() => onClick && onClick()}
     >
-      {item.id ? <DownloadOutlined style={{ cursor: 'pointer' }} /> : ''}
-    </Col>
-    {onDeleteItem && typeof index === 'number' && (
-      <Col span={1}>
-        {item.id ? (
-          <CloseOutlined
-            style={{ cursor: 'pointer' }}
-            onClick={(event) => {
-              event.stopPropagation();
-              onDeleteItem(item, index!);
-            }}
+      {currentSong && currentSong?.id === item.id ? (
+        <Col md={{ span: 1 }} xs={{ span: 2 }}>
+          <img style={{ marginLeft: '2px', filter: 'brightness(0)' }} src={ware} alt="" />
+        </Col>
+      ) : (
+        <Col md={{ span: 1 }} xs={{ span: 2 }}>
+          {index}
+        </Col>
+      )}
+      <Col md={{ span: 1 }} xs={{ span: 3 }}>
+        {item.al?.picUrl ? (
+          <img
+            src={`${item.al?.picUrl}?param=30y30`}
+            style={{ width: 30, height: 30, borderRadius: 25, padding: 2 }}
+            alt=""
           />
         ) : (
-          ''
+          <img style={{ opacity: 0 }} alt="" />
         )}
       </Col>
-    )}
-  </Row>
-);
+      <Col md={{ span: 8 }} xs={{ span: 8 }} className={style.ellipsis}>
+        {item.name}
+      </Col>
+      <Col md={{ span: 5 }} xs={{ span: 4 }} className={style.ellipsis}>
+        {item.ar?.map((it) => it.name).join(' / ')}
+      </Col>
+      <Col md={{ span: 5 }} xs={{ span: 0 }} className={style.ellipsis}>
+        {item.al?.name}
+      </Col>
+      <Col md={{ span: 2 }} xs={{ span: 3 }}>
+        {item.id ? getTime(item.dt / 1000) : '时长'}
+      </Col>
+      <Col
+        md={{ span: 1, offset: isClose ? 0 : 1 }}
+        xs={{ span: 2, offset: isClose ? 0 : 1 }}
+        onClick={(event) => {
+          event.stopPropagation();
+          downloadSong(item);
+        }}
+      >
+        {item.id ? <DownloadOutlined style={{ cursor: 'pointer' }} /> : ''}
+      </Col>
+      {isClose && (
+        <Col md={{ span: 1 }} xs={{ span: 1 }}>
+          {item.id ? (
+            <CloseOutlined
+              style={{ cursor: 'pointer' }}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDeleteItem && onDeleteItem(item, index as number);
+              }}
+            />
+          ) : (
+            ''
+          )}
+        </Col>
+      )}
+    </Row>
+  );
+};
 
 export type ClickType = 'insert' | 'replace';
 
@@ -116,6 +125,7 @@ export default function <T>({
   const [internalLoading] = useState(false);
   const { setPlayListAndSongId, insertSong } = useMusicPlayer();
   const { currentSong } = useSelector<ConnectState, MusicModelState>((state) => state.musicPlayer);
+  const { canSetMusic } = useCanSetMusic();
 
   return (
     <div>
@@ -125,13 +135,17 @@ export default function <T>({
           rowRenderer={({ index, key, style }: any) => {
             return ListItem({
               item: list[index],
-              onClick: () =>
+              onClick: () => {
+                if (!canSetMusic()) {
+                  return;
+                }
                 clickType === 'insert'
                   ? insertSong(list[index])
                   : setPlayListAndSongId({
                       playList: list,
                       songId: list[index].id,
-                    }),
+                    });
+              },
               index: index + 1,
               key: key,
               styl: style,
@@ -164,13 +178,17 @@ export default function <T>({
           renderItem={(item, index) => {
             return ListItem({
               item,
-              onClick: () =>
+              onClick: () => {
+                if (!canSetMusic()) {
+                  return;
+                }
                 clickType === 'insert'
                   ? insertSong(item)
                   : setPlayListAndSongId({
                       playList: list,
                       songId: item.id,
-                    }),
+                    });
+              },
               index: index + 1,
               onDeleteItem,
               currentSong,

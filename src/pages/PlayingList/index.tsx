@@ -42,6 +42,7 @@ export default function <T>() {
           </Space>
         </Col>
       </Row>
+      {console.info(playList)}
       <MusicList
         list={playList}
         clickType="insert"

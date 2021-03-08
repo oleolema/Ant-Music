@@ -9,4 +9,9 @@
 .searchSelect :global(.ant-select-selector) {
   height: 100% !important;
 }
+@media screen and (min-width: 768px) {
+  .searchWrapper {
+    padding: 50px 50px 0 50px;
+  }
+}
 /*# sourceMappingURL=index.css.map */

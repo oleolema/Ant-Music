@@ -7,6 +7,7 @@ import { cloudSearch, SearchData, searchSuggest, SearchSuggestData } from '@/ser
 import { useRequest } from '@@/plugin-request/request';
 import { useHistory } from 'umi';
 import MusicList from '@/components/MusicList';
+import styles from './index.less';
 
 const { Option, OptGroup } = Select;
 
@@ -36,7 +37,7 @@ export default () => {
   console.info('aaaa', searchData?.result?.songs);
 
   return (
-    <div style={{ padding: '50px 50px 0 50px' }}>
+    <div className={styles.searchWrapper}>
       <SearchInput
         onSearch={(v) => {
           cloudSearchRun(v);

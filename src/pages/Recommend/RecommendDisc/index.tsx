@@ -68,7 +68,7 @@ export default () => {
               transform: 'scale(1.2)',
             }}
           >
-            {bannerData.banners.map((it) => (
+            {bannerData?.banners.map((it) => (
               <div>
                 <div
                   key={it.imageUrl}
@@ -108,7 +108,7 @@ export default () => {
               width: innerWidth < 800 ? '100vw' : '800px',
             }}
           >
-            {bannerData.banners.map((it) => (
+            {bannerData?.banners.map((it) => (
               <img
                 src={it.imageUrl}
                 alt=""

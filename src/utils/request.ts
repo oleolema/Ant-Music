@@ -79,7 +79,7 @@ const errorHandler = (error: { response: Response }): Response => {
  */
 const request = extend({
   errorHandler, // 默认错误处理
-  credentials: 'include', // 默认请求是否带上cookie
+  // credentials: 'include', // 默认请求是否带上cookie
   // 缓存键为“ url +参数+方法”。
   useCache: true, //默认
   // 缓存持续时间（毫秒）,0为无穷大

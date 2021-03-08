@@ -73,6 +73,9 @@ const MusicModel: MusicModelType = {
       yield put({ type: 'setCurrentSongId', payload: payload.songId });
     },
     *insertSong({ payload }, { call, put, select }) {
+      if (!payload) {
+        return;
+      }
       const { playList, index }: MusicModelState = yield select(
         (state: ConnectState) => state.musicPlayer,
       );
