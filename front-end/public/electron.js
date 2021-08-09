@@ -10,7 +10,7 @@ function createWindow() {
   const options = {
     height: 600,
     width: 800,
-    backgroundColor: '#2e2c29',
+    backgroundColor: '#ffffffff',
     frame: false,//关闭原生导航栏
     titleBarStyle: "hidden",
     webPreferences: {
@@ -32,11 +32,13 @@ function createWindow() {
       slashes: true
     }))
   */
+  // const baseUrl = 'http://localhost:8000/';
+  const baseUrl = 'http://www.oleolema.cn:8080/';
   // 加载应用----适用于 react 项目
-  mainWindow.loadURL('http://localhost:8000/');
+  mainWindow.loadURL(baseUrl);
 
   // 打开开发者工具，默认不打开
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   // 关闭window时触发下列事件.
   mainWindow.on('closed', function () {

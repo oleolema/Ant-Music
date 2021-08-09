@@ -162,7 +162,7 @@ export const songDetail = (ids: number[]): Promise<{ data: SongDetailData }> =>
   Promise.all(
     split(ids, 400)
       .map((it) => () =>
-        http.post('api/netease/song/detail', {
+        http.get('api/netease/song/detail', {
           params: { ids: ids.slice(it[0], it[1]).join(',') },
         }) as Promise<{ data: SongDetailData }>,
       )
@@ -180,10 +180,10 @@ export const songDetail = (ids: number[]): Promise<{ data: SongDetailData }> =>
   });
 
 export const songUrl = (ids: number[]): Promise<{ data: SongData }> =>
-  http.post('/api/netease/song/url', { params: { id: ids.join(',') } });
+  http.get('/api/netease/song/url', { params: { id: ids.join(',') } });
 
 export const lyric = (id: number): Promise<LyricData> =>
-  http.post('/api/netease/lyric', { params: { id } });
+  http.get('/api/netease/lyric', { params: { id } });
 
 export const artistSongs = (id: number): Promise<ArtistData> =>
   http.get('/api/netease/artist/songs', { params: { id } });

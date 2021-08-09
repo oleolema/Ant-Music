@@ -41,7 +41,7 @@ open class WebSocketConfig : WebSocketConfigurer {
      * @see org.springframework.web.socket.config.annotation.WebSocketConfigurer.registerWebSocketHandlers
      */
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        registry.addHandler(myHandler(), "/share").addInterceptors(WebSocketInterceptor()).setAllowedOrigins("*")
+        registry.addHandler(myHandler(), "/websocket/share").addInterceptors(WebSocketInterceptor()).setAllowedOrigins("*")
     }
 
     @Bean

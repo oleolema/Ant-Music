@@ -45,6 +45,8 @@ export const ShareConstant = {
   CLOSE_CLIENT: 'CLOSE_CLIENT',
 };
 
+
+
 export class WebSocketResult<T> {
   data: T;
   type: string;

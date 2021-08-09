@@ -1,44 +1,45 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Avatar, Card, Col, Row, Slider } from 'antd';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {Avatar, Card, Col, Row, Slider} from 'antd';
 import styles from './index.less';
 import Text from 'antd/es/typography/Text';
-import { useModel } from '@@/plugin-model/useModel';
-import { getTime } from '@/pages/MusicPlayer/index';
+import {useModel} from '@@/plugin-model/useModel';
+import {getTime} from '@/pages/MusicPlayer/index';
 import useMusicPlayer from '@/hooks/useMusicPlayer';
 import indexStyle from '@/pages/index.less';
 import usePaused from '@/hooks/useMusicPlayer/usePaused';
 import useNext from '@/hooks/useMusicPlayer/useNext';
-import { useSelector } from '@@/plugin-dva/exports';
-import { ConnectState } from '@/models/connect';
-import { MusicModelState } from '@/models/musicModel';
+import {useSelector} from '@@/plugin-dva/exports';
+import {ConnectState} from '@/models/connect';
+import {MusicModelState} from '@/models/musicModel';
 import playerIcon from '@/assets/player.png';
 import useCanSetMusic from '@/hooks/useMusicPlayer/useCanSetMusic';
-import { downloadSong } from '@/utils/utils';
+import {downloadSong} from '@/utils/utils';
 
-interface MiniPlayerProps {}
+interface MiniPlayerProps {
+}
 
 const MiniPlayer: React.FC<MiniPlayerProps> = () => {
-  const { currentSong, mode } = useSelector<ConnectState, MusicModelState>(
+  const {currentSong, mode} = useSelector<ConnectState, MusicModelState>(
     (state) => state.musicPlayer,
   );
-  const { audioRef } = useModel('musicPlayer');
-  const { taggerFull } = useModel('full');
-  const { nextMode } = useMusicPlayer();
-  const { paused, play, pause } = usePaused();
-  const { pre, next } = useNext();
-  const { volume, setVolume } = useModel('volume');
-  const { canSetMusic } = useCanSetMusic();
+  const {audioRef} = useModel('musicPlayer');
+  const {taggerFull} = useModel('full');
+  const {nextMode} = useMusicPlayer();
+  const {paused, play, pause} = usePaused();
+  const {pre, next} = useNext();
+  const {volume, setVolume} = useModel('volume');
+  const {canSetMusic} = useCanSetMusic();
 
   return (
     currentSong && (
       <div className={styles.noBorder}>
         <Card className={styles.fixCard}>
           <Row align="middle" gutter={20}>
-            <Col sm={{ span: 6 }} xs={{ span: 9 }}>
-              <Row gutter={10} align="middle" style={{ flexWrap: 'nowrap', overflow: 'hidden' }}>
+            <Col sm={{span: 6}} xs={{span: 9}}>
+              <Row gutter={10} align="middle" style={{flexWrap: 'nowrap', overflow: 'hidden'}}>
                 <Col onClick={taggerFull}>
                   <Avatar
-                    style={{ cursor: 'pointer' }}
+                    style={{cursor: 'pointer'}}
                     size={50}
                     shape="square"
                     src={`${currentSong.al?.picUrl}?param=100y100`}
@@ -54,18 +55,18 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
                 </Col>
               </Row>
             </Col>
-            <Col sm={{ span: 12 }} xs={{ span: 14 }} className={indexStyle.noneSelect}>
-              <Row justify="space-around" align="middle" style={{ fontSize: '20px' }}>
+            <Col sm={{span: 12}} xs={{span: 14}} className={indexStyle.noneSelect}>
+              <Row justify="space-around" align="middle" style={{fontSize: '20px'}}>
                 <Col>
                   <div
-                    style={{ backgroundImage: `url(${playerIcon})` }}
+                    style={{backgroundImage: `url(${playerIcon})`}}
                     className={`${styles[`${mode}Icon`]} ${styles.playerIcon}`}
                     onClick={nextMode}
                   />
                 </Col>
                 <Col>
                   <div
-                    style={{ backgroundImage: `url(${playerIcon})` }}
+                    style={{backgroundImage: `url(${playerIcon})`}}
                     className={`${styles.prevIcon} ${styles.playerIcon}`}
                     onClick={() => {
                       if (!canSetMusic()) {
@@ -78,7 +79,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
                 <Col>
                   {paused ? (
                     <div
-                      style={{ backgroundImage: `url(${playerIcon})` }}
+                      style={{backgroundImage: `url(${playerIcon})`}}
                       className={`${styles.playIcon} ${styles.playerIcon}`}
                       onClick={() => {
                         if (!canSetMusic()) {
@@ -89,7 +90,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
                     />
                   ) : (
                     <div
-                      style={{ backgroundImage: `url(${playerIcon})` }}
+                      style={{backgroundImage: `url(${playerIcon})`}}
                       className={`${styles.pauseIcon} ${styles.playerIcon}`}
                       onClick={() => {
                         if (!canSetMusic()) {
@@ -102,7 +103,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
                 </Col>
                 <Col>
                   <div
-                    style={{ backgroundImage: `url(${playerIcon})` }}
+                    style={{backgroundImage: `url(${playerIcon})`}}
                     className={`${styles.nextIcon} ${styles.playerIcon}`}
                     onClick={() => {
                       if (!canSetMusic()) {
@@ -114,24 +115,24 @@ const MiniPlayer: React.FC<MiniPlayerProps> = () => {
                 </Col>
                 <Col>
                   <div
-                    style={{ backgroundImage: `url(${playerIcon})` }}
+                    style={{backgroundImage: `url(${playerIcon})`}}
                     className={`${styles.downloadIcon} ${styles.playerIcon}`}
                     onClick={() => downloadSong(currentSong)}
                   />
                 </Col>
               </Row>
-              <MiniSlider entireTime={~~((currentSong?.dt || 0) / 1000)} />
+              <MiniSlider entireTime={~~((currentSong?.dt || 0) / 1000)}/>
             </Col>
-            <Col sm={{ span: 6 }} xs={{ span: 0 }}>
+            <Col sm={{span: 6}} xs={{span: 0}}>
               <Row align="middle">
                 <Col>
                   <div
-                    style={{ backgroundImage: `url(${playerIcon})` }}
+                    style={{backgroundImage: `url(${playerIcon})`}}
                     className={`${styles.volumeIcon} ${styles.playerIcon}`}
                     onClick={nextMode}
                   />
                 </Col>
-                <Col lg={{ span: 10 }} span={16}>
+                <Col lg={{span: 10}} span={16}>
                   <Slider
                     defaultValue={volume * 100}
                     min={0}
@@ -159,17 +160,17 @@ interface MiniSliderType {
   entireTime: number;
 }
 
-function MiniSlider({ entireTime }: MiniSliderType) {
+function MiniSlider({entireTime}: MiniSliderType) {
   // const { currentSong } = useSelector<ConnectState, MusicModelState>((state) => state.musicPlayer);
   const [currentSecond, setCurrentSecond] = useState(0);
   const [sliderValue, setSliderValue] = useState(-1);
   const [sliding, setSliding] = useState(false);
-  const { audioRef } = useModel('musicPlayer');
-  const { lyricObj, lyricPlay } = useModel('lyricObj');
-  const { setSlideAfterValue } = useModel('slideAfterChange');
-  const { paused, play } = usePaused();
+  const {audioRef} = useModel('musicPlayer');
+  const {lyricObj, lyricPlay} = useModel('lyricObj');
+  const {setSlideAfterValue} = useModel('slideAfterChange');
+  const {paused, play} = usePaused();
   const sliderRef = useRef<any>(null);
-  const { canSetMusic } = useCanSetMusic();
+  const {canSetMusic} = useCanSetMusic();
 
   useEffect(() => {
     setSliding(false);
@@ -202,10 +203,10 @@ function MiniSlider({ entireTime }: MiniSliderType) {
 
   return (
     <Row gutter={10} align="middle">
-      <Col sm={{ span: 2 }} xs={{ span: 5 }}>
+      <Col sm={{span: 2}} xs={{span: 5}}>
         {getTime(sliding ? sliderValue : currentSecond)}
       </Col>
-      <Col sm={{ span: 20 }} xs={{ span: 14 }}>
+      <Col sm={{span: 20}} xs={{span: 14}}>
         <Slider
           ref={sliderRef}
           min={0}
@@ -213,7 +214,7 @@ function MiniSlider({ entireTime }: MiniSliderType) {
           tipFormatter={null}
           value={sliding ? sliderValue : currentSecond}
           onChange={(v: number) => {
-            if (!canSetMusic()) {
+            if (!canSetMusic(false)) {
               return;
             }
             setSliderValue(v);
@@ -221,7 +222,7 @@ function MiniSlider({ entireTime }: MiniSliderType) {
             console.info('asdf');
           }}
           onAfterChange={(v: number) => {
-            if (!canSetMusic()) {
+            if (!canSetMusic(false)) {
               return;
             }
             audioRef.current!.currentTime = v;

@@ -1,11 +1,14 @@
-import { useLocalStorageState, useWebSocket } from 'ahooks';
-import { useState } from 'react';
-import { message } from 'antd';
-import { CreateShareTypeEnum, WebSocketResult } from '@/services/share';
+import {useLocalStorageState, useWebSocket} from 'ahooks';
+import {useState} from 'react';
+import {message} from 'antd';
+import {CreateShareTypeEnum, WebSocketResult} from '@/services/share';
+import {isDev} from "@/utils/utils";
 
 const SHARE_WEBSOCKET_JOIN_URL = 'SHARE_WEBSOCKET_JOIN_URL';
 const SHARE_WEBSOCKET_SELF_NAME = 'SHARE_WEBSOCKET_SELF_NAME';
 const SHARE_WEBSOCKET_ADMIN_ID = 'SHARE_WEBSOCKET_ADMIN_ID';
+const SERVER_PORT = isDev() ? "8080" : location.port;
+console.info('port', SERVER_PORT);
 export default () => {
   const [socketUrl, setSocketUrl] = useState<string>('');
   const [joinUrl, setJoinUrl] = useLocalStorageState<string | null>(SHARE_WEBSOCKET_JOIN_URL, null);
@@ -35,10 +38,10 @@ export default () => {
    * @param clientId
    */
   function adminSendMsg({
-    type,
-    data,
-    clientId = '',
-  }: {
+                          type,
+                          data,
+                          clientId = '',
+                        }: {
     type: string;
     data: any;
     clientId?: string;
@@ -48,7 +51,7 @@ export default () => {
       return;
     }
 
-    sendMsg({ type, data, clientId });
+    sendMsg({type, data, clientId});
   }
 
   /**
@@ -58,10 +61,10 @@ export default () => {
    * @param clientId null: 全部发送 成员包括房主;  "": 只发送给成员;  "123123": 只发送给指定
    */
   const sendMsg = ({
-    type,
-    data,
-    clientId = '',
-  }: {
+                     type,
+                     data,
+                     clientId = '',
+                   }: {
     type: string;
     data?: any;
     clientId?: string;
@@ -71,7 +74,7 @@ export default () => {
       return;
     }
     sendMessage &&
-      sendMessage(JSON.stringify(WebSocketResult.success(type, data || '').setClientId(clientId)));
+    sendMessage(JSON.stringify(WebSocketResult.success(type, data || '').setClientId(clientId)));
   };
 
   console.info(isAdmin);
@@ -92,11 +95,11 @@ export default () => {
           if (url.searchParams.get('type') !== 'join' || !url.searchParams.get('adminId')) {
             throw 'join params error';
           }
-          sUrl = `ws://${location.host.split(':')[0]}:8080/share${url.search}`;
+          sUrl = `ws://${location.host.split(':')[0]}:${SERVER_PORT}/websocket/share${url.search}`;
           setIsAdmin(false);
           sUrlObj = new URL(sUrl);
         } else if (type === CreateShareTypeEnum.CREATE) {
-          sUrl = `ws://${location.host.split(':')[0]}:8080/share?type=create`;
+          sUrl = `ws://${location.host.split(':')[0]}:${SERVER_PORT}/websocket/share?type=create`;
           setIsAdmin(true);
           sUrlObj = new URL(sUrl);
           adminId && sUrlObj.searchParams.append('id', encodeURI(adminId));

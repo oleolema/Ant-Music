@@ -8,11 +8,6 @@
 export default {
   dev: {
     '/api/netease': {
-      target: 'http://www.oleolema.cn/',
-      changeOrigin: true,
-      pathRewrite: { '^': '' },
-    },
-    '/api/netease/websocket': {
       target: 'http://localhost:8080',
       changeOrigin: true,
       pathRewrite: { '^': '' },

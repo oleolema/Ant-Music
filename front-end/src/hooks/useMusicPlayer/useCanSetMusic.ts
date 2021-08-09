@@ -1,17 +1,18 @@
-import { message } from 'antd';
-import { useModel } from '@@/plugin-model/useModel';
-import { useCallback } from 'react';
+import {message} from 'antd';
+import {useModel} from '@@/plugin-model/useModel';
+import {useCallback} from 'react';
+import _ from "lodash";
 
 export default () => {
-  const { readyState, isAdmin, connected } = useModel('shareWebsocket');
+  const {readyState, isAdmin, connected} = useModel('shareWebsocket');
 
-  const canSetMusic = useCallback(() => {
+  const canSetMusic = useCallback(_.throttle((notice: boolean = true) => {
     if (readyState !== 1 || isAdmin) {
       return true;
     }
-    message.warn('共享中无法切换歌曲, 请先退出');
+    notice && message.warn('共享中无法切换歌曲, 请先退出');
     return false;
-  }, [readyState, isAdmin, connected]);
+  }, 3000), [readyState, isAdmin, connected]);
 
   return {
     canSetMusic,

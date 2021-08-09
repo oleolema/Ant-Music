@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import useMusicPlayer from '@/hooks/useMusicPlayer';
-import { useModel } from '@@/plugin-model/useModel';
-import { useSelector } from '@@/plugin-dva/exports';
-import { ConnectState } from '@/models/connect';
-import { MusicModelState } from '@/models/musicModel';
-import { ShareConstant, WebSocketResult } from '@/services/share';
-import { message } from 'antd';
+import {useModel} from '@@/plugin-model/useModel';
+import {useSelector} from '@@/plugin-dva/exports';
+import {ConnectState} from '@/models/connect';
+import {MusicModelState} from '@/models/musicModel';
+import {ShareConstant, WebSocketResult} from '@/services/share';
+import {message} from 'antd';
 
 export default () => {
-  const { audioRef } = useModel('musicPlayer');
-  const { slideAfterValue } = useModel('slideAfterChange');
-  const { setSelfInfo, setSharerList } = useModel('share');
-  const { lyricObj } = useModel('lyricObj');
+  const {audioRef} = useModel('musicPlayer');
+  const {slideAfterValue} = useModel('slideAfterChange');
+  const {setSelfInfo, setSharerList} = useModel('share');
+  const {lyricObj} = useModel('lyricObj');
   const {
     isAdmin,
     adminSendMsg,
@@ -20,13 +20,10 @@ export default () => {
     sendMsg,
     webSocketIns,
     latestMessage,
-    readyState,
   } = useModel('shareWebsocket');
-  const { currentSong } = useSelector<ConnectState, MusicModelState>((state) => state.musicPlayer);
+  const {currentSong} = useSelector<ConnectState, MusicModelState>((state) => state.musicPlayer);
 
-  const { insertSong } = useMusicPlayer();
-
-  console.info(latestMessage);
+  const {insertSong} = useMusicPlayer();
 
   // 收到消息时触发
   useEffect(() => {
@@ -61,8 +58,13 @@ export default () => {
       case ShareConstant.OPTIONS:
         return;
       case ShareConstant.PUSH_MUSIC:
-        adminSendMsg({ type: ShareConstant.PULL_SONG, data: currentSong });
-        sendCurrentTimeAndPause();
+        adminSendMsg({type: ShareConstant.PULL_SONG, data: currentSong});
+        setTimeout(() => {
+          sendSyncCurrentTimeAndPause();
+        }, 1000);
+        setTimeout(() => {
+          sendSyncCurrentTimeAndPause();
+        }, 2000);
         return;
       case ShareConstant.PULL_SONG:
         if (isAdmin) {
@@ -71,7 +73,6 @@ export default () => {
         insertSong(webSocketResult.data);
         return;
       case ShareConstant.PULL_CURRENT_TIME_AND_PAUSED:
-        console.info(isAdmin, webSocketResult.data);
         setCurrentTimeAndPause(webSocketResult);
         return;
       case ShareConstant.PULL_CURRENT_TIME_SYNC:
@@ -100,37 +101,14 @@ export default () => {
   }, [webSocketIns]);
 
   useEffect(() => {
-    adminSendMsg({ type: ShareConstant.PULL_SONG, data: currentSong });
-    adminSendMsg({
-      type: ShareConstant.PULL_CURRENT_TIME_AND_PAUSED,
-      data: { currentTime: 0, paused: false },
-    });
-    const timer = setTimeout(sendCurrentTimeAndPause, 1000);
-    return () => {
-      clearTimeout(timer);
-    };
+    adminSendMsg({type: ShareConstant.PULL_SONG, data: currentSong});
+    setTimeout(() => {
+      sendSyncCurrentTimeAndPause();
+    }, 1000);
   }, [currentSong?.id]);
 
-  /**
-   * 同步器
-   */
   useEffect(() => {
-    if (readyState !== 1) {
-      return;
-    }
-    const timer = setInterval(() => {
-      adminSendMsg({
-        type: ShareConstant.PULL_CURRENT_TIME_SYNC,
-        data: { currentTime: audioRef.current?.currentTime, paused: audioRef.current?.paused },
-      });
-    }, 3000);
-    return () => {
-      clearInterval(timer);
-    };
-  }, [readyState]);
-
-  useEffect(() => {
-    sendMsg({ type: ShareConstant.CHANGE_NAME, data: selfName });
+    sendMsg({type: ShareConstant.CHANGE_NAME, data: selfName});
   }, [selfName]);
 
   useEffect(() => {
@@ -141,26 +119,28 @@ export default () => {
     if (!audioRef.current) {
       return;
     }
-    console.info('bbb');
     const onPauseOrPlay = () => {
-      console.info('aaa');
-      adminSendMsg({
-        type: ShareConstant.PULL_CURRENT_TIME_AND_PAUSED,
-        data: { currentTime: audioRef.current?.currentTime, paused: audioRef.current?.paused },
-      });
+      sendSyncCurrentTimeAndPause();
     };
     audioRef.current.addEventListener('pause', onPauseOrPlay);
     audioRef.current.addEventListener('play', onPauseOrPlay);
     return () => {
-      audioRef.current.removeEventListener('pause', onPauseOrPlay);
-      audioRef.current.removeEventListener('play', onPauseOrPlay);
+      audioRef.current?.removeEventListener('pause', onPauseOrPlay);
+      audioRef.current?.removeEventListener('play', onPauseOrPlay);
     };
   });
 
   function sendCurrentTimeAndPause() {
     adminSendMsg({
       type: ShareConstant.PULL_CURRENT_TIME_AND_PAUSED,
-      data: { currentTime: audioRef.current?.currentTime, paused: audioRef.current?.paused },
+      data: {currentTime: audioRef.current?.currentTime, paused: audioRef.current?.paused},
+    });
+  }
+
+  function sendSyncCurrentTimeAndPause() {
+    adminSendMsg({
+      type: ShareConstant.PULL_CURRENT_TIME_SYNC,
+      data: {currentTime: audioRef.current?.currentTime, paused: audioRef.current?.paused},
     });
   }
 

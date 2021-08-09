@@ -40,6 +40,7 @@ export default defineConfig({
   title: false,
   ignoreMomentLocale: true,
   proxy: proxy[REACT_APP_ENV || 'dev'],
+  outputPath: '../ant-music-back-end/src/main/resources/static',
   manifest: {
     basePath: '/',
   },

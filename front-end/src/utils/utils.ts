@@ -1,7 +1,7 @@
 /* eslint no-useless-escape:0 import/prefer-default-export:0 */
-import { Song } from '@/services/API';
-import { message } from 'antd';
-import { songUrl } from '@/services/song';
+import {Song} from '@/services/API';
+import {message} from 'antd';
+import {songUrl} from '@/services/song';
 
 const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/;
 
@@ -16,7 +16,7 @@ export const isAntDesignPro = (): boolean => {
 
 // 给官方演示站点用，用于关闭真实开发环境不需要使用的特性
 export const isAntDesignProOrDev = (): boolean => {
-  const { NODE_ENV } = process.env;
+  const {NODE_ENV} = process.env;
   if (NODE_ENV === 'development') {
     return true;
   }
@@ -40,6 +40,7 @@ export function download(url: string, filename: string, ended?: () => void) {
     a.click();
     window.URL.revokeObjectURL(url);
   }
+
   function ajax(url: string, callback: (xhr: XMLHttpRequest) => void, options: any) {
     window.URL = window.URL || window.webkitURL;
     const xhr = new XMLHttpRequest();
@@ -54,6 +55,7 @@ export function download(url: string, filename: string, ended?: () => void) {
     };
     xhr.send();
   }
+
   ajax(
     url,
     function (xhr) {
@@ -80,7 +82,7 @@ export const downloadSong = (song: Song) => {
 };
 
 export function scrollOptions(element: HTMLDivElement) {
-  var keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
+  var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
   function preventDefault(e: Event) {
     if (e.preventDefault) e.preventDefault();
@@ -125,4 +127,8 @@ export function scrollOptions(element: HTMLDivElement) {
     disableScroll,
     enableScroll,
   };
+}
+
+export function isDev() {
+  return location.port === '8000' || location.port === '8001' || location.port === '8002'
 }

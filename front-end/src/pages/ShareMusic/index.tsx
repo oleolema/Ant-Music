@@ -1,18 +1,13 @@
-import React, { ReactNode, useEffect } from 'react';
-import { Button, Card, Col, Form, Input, Radio, Row, Tag } from 'antd';
-import { ReadyState } from 'ahooks/es/useWebSocket';
+import React, {ReactNode, useEffect} from 'react';
+import {Button, Card, Col, Form, Input, Radio, Row, Tag} from 'antd';
+import {ReadyState} from 'ahooks/es/useWebSocket';
 import Paragraph from 'antd/lib/typography/Paragraph';
-import { useModel } from '@@/plugin-model/useModel';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
-import { CreateShare, CreateShareTypeEnum, ShareConstant } from '@/services/share';
-import {
-  CloseCircleOutlined,
-  CloseOutlined,
-  PlusCircleOutlined,
-  SettingOutlined,
-} from '@ant-design/icons';
+import {useModel} from '@@/plugin-model/useModel';
+import ProTable, {ProColumns} from '@ant-design/pro-table';
+import {CreateShare, CreateShareTypeEnum, ShareConstant} from '@/services/share';
+import {CloseCircleOutlined, CloseOutlined, PlusCircleOutlined, SettingOutlined,} from '@ant-design/icons';
 import styles from './index.less';
-import { v4 } from 'uuid';
+import {v4} from 'uuid';
 import Text from 'antd/es/typography/Text';
 import Search from 'antd/es/input/Search';
 import Title from 'antd/es/typography/Title';
@@ -20,7 +15,8 @@ import Title from 'antd/es/typography/Title';
 let isFirst = true;
 
 export default () => {
-  const { selfInfo, sharerList, shareType, setShareType } = useModel('share');
+  const {selfInfo, sharerList, shareType, setShareType} = useModel('share');
+  const {audioRef} = useModel('musicPlayer');
   const {
     readyState,
     disconnect,
@@ -52,9 +48,12 @@ export default () => {
   function createShare() {
     connect && connect(CreateShareTypeEnum.CREATE);
   }
+
   function joinShare() {
+    audioRef.current?.play()
     connect && connect(CreateShareTypeEnum.JOIN);
   }
+
   function exitShare() {
     disconnect && disconnect();
   }
@@ -75,7 +74,7 @@ export default () => {
       width: 80,
       dataIndex: 'type',
       render: (dom, createShare, index, action, schema) => {
-        const { id, type } = createShare;
+        const {id, type} = createShare;
         let nodes: ReactNode[] = [];
         if (type === CreateShareTypeEnum.CREATE) {
           nodes.push(
@@ -102,12 +101,12 @@ export default () => {
       key: 'option',
       valueType: 'option',
       render: (dom, createShare) => {
-        const { id, type } = createShare;
+        const {id, type} = createShare;
         if (type === CreateShareTypeEnum.JOIN && isAdmin) {
           return (
             <CloseOutlined
               onClick={() => {
-                adminSendMsg({ type: ShareConstant.CLOSE_CLIENT, data: id });
+                adminSendMsg({type: ShareConstant.CLOSE_CLIENT, data: id});
               }}
             />
           );
@@ -132,15 +131,15 @@ export default () => {
             defaultValue={shareType}
             onChange={(e) => setShareType(e.target.value)}
             options={[
-              { label: '创建', value: CreateShareTypeEnum.CREATE },
-              { label: '加入', value: CreateShareTypeEnum.JOIN },
+              {label: '创建', value: CreateShareTypeEnum.CREATE},
+              {label: '加入', value: CreateShareTypeEnum.JOIN},
             ]}
           />
           {readyState === 1 && (
             <>
               <Col>名称：</Col>
               <Col>
-                <Text editable={{ onChange: setSelfName }}>{selfName}</Text>
+                <Text editable={{onChange: setSelfName}}>{selfName}</Text>
               </Col>
             </>
           )}
@@ -149,10 +148,10 @@ export default () => {
           <>
             <Row>房主会将当前播放的音乐共享给房间内的其他成员</Row>
             <Row>
-              <Col md={{ span: 12 }} xs={{ span: 24 }}>
+              <Col md={{span: 12}} xs={{span: 24}}>
                 <Form.Item label="房间ID">
                   <Search
-                    style={{ minWidth: 280 }}
+                    style={{minWidth: 280}}
                     disabled={readyState === 1}
                     placeholder="请输入房间ID(可选)"
                     value={adminId || undefined}
@@ -160,7 +159,7 @@ export default () => {
                     onChange={(event) => setAdminId(event.target.value)}
                     enterButton={
                       <Button disabled={readyState === 1}>
-                        <SettingOutlined />
+                        <SettingOutlined/>
                         随机
                       </Button>
                     }
@@ -170,13 +169,13 @@ export default () => {
                   />
                 </Form.Item>
               </Col>
-              <Col md={{ span: 12 }} xs={{ span: 24 }}>
+              <Col md={{span: 12}} xs={{span: 24}}>
                 <Button
                   onClick={createShare}
                   type="primary"
                   disabled={readyState === ReadyState.Open}
                 >
-                  <PlusCircleOutlined />
+                  <PlusCircleOutlined/>
                   创建共享
                 </Button>
                 <Button
@@ -184,7 +183,7 @@ export default () => {
                   onClick={exitShare}
                   disabled={readyState !== ReadyState.Open}
                 >
-                  <CloseCircleOutlined />
+                  <CloseCircleOutlined/>
                   停止共享
                 </Button>
               </Col>
@@ -205,10 +204,10 @@ export default () => {
           <>
             <Row>加入房间后会跟随房主播放音乐, 您在共享过程中不能切换歌曲</Row>
             <Row>
-              <Col md={{ span: 12 }} xs={{ span: 24 }}>
+              <Col md={{span: 12}} xs={{span: 24}}>
                 <Form.Item label="共享链接">
                   <Input
-                    style={{ minWidth: 280 }}
+                    style={{minWidth: 280}}
                     disabled={readyState === 1}
                     placeholder="请输入共享链接"
                     value={joinUrl || undefined}
@@ -217,13 +216,13 @@ export default () => {
                   />
                 </Form.Item>
               </Col>
-              <Col md={{ span: 12 }} xs={{ span: 24 }}>
+              <Col md={{span: 12}} xs={{span: 24}}>
                 <Button
                   onClick={joinShare}
                   type="primary"
                   disabled={readyState === ReadyState.Open}
                 >
-                  <PlusCircleOutlined />
+                  <PlusCircleOutlined/>
                   加入共享
                 </Button>
                 <Button
@@ -231,7 +230,7 @@ export default () => {
                   type="primary"
                   disabled={readyState !== ReadyState.Open}
                 >
-                  <CloseCircleOutlined />
+                  <CloseCircleOutlined/>
                   退出共享
                 </Button>
               </Col>

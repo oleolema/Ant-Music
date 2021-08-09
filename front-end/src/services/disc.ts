@@ -97,10 +97,10 @@ export enum Trans {
 
 // 歌单详情
 export const playlistDetail = (id: number): Promise<DiscData> =>
-  http.post('/api/netease/playlist/detail', { params: { id } });
+  http.get('/api/netease/playlist/detail', { params: { id } });
 
 // 排行榜
-export const toplist = (): Promise<RankingData> => http.post('/api/netease/toplist');
+export const toplist = (): Promise<RankingData> => http.get('/api/netease/toplist');
 
 // 歌手排行榜
-export const toplistArtist = (): Promise<ArtistTopData> => http.post('/api/netease/toplist/artist');
+export const toplistArtist = (): Promise<ArtistTopData> => http.get('/api/netease/toplist/artist');
