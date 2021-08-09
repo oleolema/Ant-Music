@@ -1,59 +1,95 @@
-# Ant Design Pro
+# Ant Music  多设备同步音乐播放器
 
-This project is initialized with [Ant Design Pro](https://pro.ant.design). Follow is the quick guide for how to use.
+毕设项目，后端使用Kotlin， 前端使用React
 
-## Environment Prepare
+项目在线演示：[http://www.oleolema.cn:8080/](http://www.oleolema.cn:8080/)   
 
-Install `node_modules`:
+同步效果截屏：
 
-```bash
-npm install
-```
+![img](doc/01/clip_image002.jpg)
 
-or
 
-```bash
-yarn
-```
 
-## Provided Scripts
+一、排行榜
 
-Ant Design Pro provides some useful script to help you quick start and build with web project, code style check and test.
+ 
 
-Scripts provided in `package.json`. It's safe to modify or add additional script:
+![img](doc/01/clip_image002.gif)
 
-### Start project
+ 
 
-```bash
-npm start
-```
+ 
 
-### Build project
+![img](doc/01/clip_image004.gif)
 
-```bash
-npm run build
-```
+ 
 
-### Check code style
+二、搜索
 
-```bash
-npm run lint
-```
 
-You can also use script to auto fix some lint error:
 
-```bash
-npm run lint:fix
-```
+ 
 
-### Test code
+![img](doc/01/clip_image006.gif)
 
-```bash
-npm test
-```
+ 
 
-## More
+三、播放历史
 
-You can view full document on our [official website](https://pro.ant.design). And welcome any feedback in our [github](https://github.com/ant-design/ant-design-pro).
 
-# Ant-Music
+
+ 
+
+![img](doc/01/clip_image008.gif)
+
+
+
+四、全屏播放
+
+
+
+ 
+
+![img](doc/01/clip_image010.jpg)
+
+
+
+ 
+
+ 
+
+五、歌单详情
+
+
+
+ 
+
+![img](doc/01/clip_image012.gif)
+
+
+
+ 
+
+六、共享
+
+
+
+ 
+
+![img](doc/01/clip_image014.jpg)
+
+
+
+ 
+
+七、推荐歌单
+
+
+
+ 
+
+![img](doc/01/clip_image016.gif)
+
+
+
+ 
