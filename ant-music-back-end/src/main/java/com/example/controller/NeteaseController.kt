@@ -1,10 +1,11 @@
 package com.example.controller
 
 import com.example.utils.HttpUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.util.UriUtils
 import javax.annotation.PostConstruct
 import javax.servlet.http.HttpServletRequest
 
@@ -13,21 +14,24 @@ import javax.servlet.http.HttpServletRequest
  * @date 2021-03-08 21:25
  */
 @RestController
-class NeteaseController {
+open class NeteaseController() {
+
+    companion object {
+        val LOG: Logger = LoggerFactory.getLogger(NeteaseController::class.java)
+    }
 
     @Value("\${music.server.host}")
     lateinit var serverHost: String
 
     @PostConstruct
-    fun init() {
+    open fun init() {
         serverHost = serverHost.removeSuffix("/")
     }
 
-    @RequestMapping("/api/netease/**")
-    fun get(request: HttpServletRequest): String {
-        val params = request.parameterMap.map { entry -> "${UriUtils.encode(entry.key, Charsets.UTF_8)}=${entry.value.joinToString(",") { UriUtils.encode(it, Charsets.UTF_8) }}" }.joinToString("&")
-        println(params)
-        return HttpUtils.get("$serverHost${request.servletPath.removePrefix("/api/netease")}?$params")
+    @PostMapping("/api/netease/**")
+    open fun post(request: HttpServletRequest): String { val queryString = request.queryString ?: ""
+        LOG.info(queryString)
+        return HttpUtils.postForm("$serverHost${request.servletPath.removePrefix("/api/netease")}?timestamp=${System.currentTimeMillis()}", queryString)
     }
 
 

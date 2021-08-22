@@ -40,7 +40,7 @@ export enum TitleColor {
 }
 
 // 推荐歌单
-export const personalized = (): Promise<DiscData> => http.get(`/api/netease/personalized`);
+export const personalized = (): Promise<DiscData> => http.post(`/api/netease/personalized`);
 // 轮播图
-export const banner = () => http.get(`/api/netease/banner`);
+export const banner = () => http.post(`/api/netease/banner`);
 

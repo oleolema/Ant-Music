@@ -1,6 +1,5 @@
-import { http } from '@/utils/request';
-import { Song, SongData, SongDetailData } from '@/services/API';
-import { split } from '@/utils/utils';
+import {http} from '@/utils/request';
+import {Song, SongData, SongDetailData} from '@/services/API';
 
 export interface LyricData {
   status: number;
@@ -83,6 +82,7 @@ export interface H {
 export interface SearchData {
   result: SearchResult;
 }
+
 export interface SearchResult {
   songs: Song[];
   songCount: number;
@@ -157,44 +157,48 @@ export interface SongSuggest {
   rUrl: null;
   mark: number;
 }
+
 // 歌单详情 (分段请求)
+// export const songDetail = (ids: number[]): Promise<{ data: SongDetailData }> =>
+//   Promise.all(
+//     split(ids, 400)
+//       .map((it) => () =>
+//         http.post('api/netease/song/detail', {
+//           params: {ids: ids.slice(it[0], it[1]).join(',')},
+//         }) as Promise<{ data: SongDetailData }>,
+//       )
+//       .map((it) => it()),
+//   ).then((a) => {
+//     const r = a.reduce((previousValue, currentValue) => {
+//       previousValue.data.songs = [...previousValue.data.songs, ...currentValue.data.songs];
+//       previousValue.data.privileges = [
+//         ...previousValue.data.privileges,
+//         ...currentValue.data.privileges,
+//       ];
+//       return previousValue;
+//     });
+//     return r;
+//   });
+
 export const songDetail = (ids: number[]): Promise<{ data: SongDetailData }> =>
-  Promise.all(
-    split(ids, 400)
-      .map((it) => () =>
-        http.get('api/netease/song/detail', {
-          params: { ids: ids.slice(it[0], it[1]).join(',') },
-        }) as Promise<{ data: SongDetailData }>,
-      )
-      .map((it) => it()),
-  ).then((a) => {
-    const r = a.reduce((previousValue, currentValue) => {
-      previousValue.data.songs = [...previousValue.data.songs, ...currentValue.data.songs];
-      previousValue.data.privileges = [
-        ...previousValue.data.privileges,
-        ...currentValue.data.privileges,
-      ];
-      return previousValue;
-    });
-    return r;
-  });
+  http.post('api/netease/song/detail', {requestType: 'form', params: {ids: ids.join(',')}});
 
 export const songUrl = (ids: number[]): Promise<{ data: SongData }> =>
-  http.get('/api/netease/song/url', { params: { id: ids.join(',') } });
+  http.post('/api/netease/song/url', {requestType: 'form', params: {id: ids.join(',')}});
 
 export const lyric = (id: number): Promise<LyricData> =>
-  http.get('/api/netease/lyric', { params: { id } });
+  http.post('/api/netease/lyric', {requestType: 'form', params: {id}});
 
 export const artistSongs = (id: number): Promise<ArtistData> =>
-  http.get('/api/netease/artist/songs', { params: { id } });
+  http.post('/api/netease/artist/songs', {requestType: 'form', params: {id}});
 
 // type: 搜索类型；默认为 1 即单曲 , 取值意义 : 1: 单曲, 10: 专辑, 100: 歌手, 1000: 歌单, 1002: 用户, 1004: MV, 1006: 歌词, 1009: 电台, 1014: 视频, 1018:综合
 export const cloudSearch = (keywords: string, type: number = 1): Promise<SearchData> =>
-  http.get('/api/netease/cloudsearch', { params: { keywords: keywords.trim(), type } });
+  http.post('/api/netease/cloudsearch', {requestType: 'form', params: {keywords: keywords.trim(), type}});
 
 export const searchSuggest = (keywords: string): Promise<SearchSuggestData | null> => {
   if (!keywords) {
     return Promise.resolve(null);
   }
-  return http.get('/api/netease/search/suggest', { params: { keywords: keywords.trim() } });
+  return http.post('/api/netease/search/suggest', {requestType: 'form', params: {keywords: keywords.trim()}});
 };

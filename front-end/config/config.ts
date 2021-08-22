@@ -12,6 +12,13 @@ export default defineConfig({
   dva: {
     hmr: true,
   },
+  // nodeModulesTransform: {
+  //   type: 'none',
+  //   exclude: [],
+  // },
+  // mfsu: {
+  //   production: {}
+  // },
   layout: {
     name: 'Ant Music',
     locale: true,
