@@ -1,5 +1,5 @@
-import { http } from '@/utils/request';
-import { DiscData } from '@/services/API';
+import {http} from '@/utils/request';
+import {DiscData} from '@/services/API';
 
 export interface RankingData {
   code: number;
@@ -97,10 +97,10 @@ export enum Trans {
 
 // 歌单详情
 export const playlistDetail = (id: number): Promise<DiscData> =>
-  http.get('/api/netease/playlist/detail', { params: { id } });
+  http.post('/api/netease/playlist/detail', {requestType: 'form', params: {id}});
 
 // 排行榜
-export const toplist = (): Promise<RankingData> => http.get('/api/netease/toplist');
+export const toplist = (): Promise<RankingData> => http.post('/api/netease/toplist');
 
 // 歌手排行榜
-export const toplistArtist = (): Promise<ArtistTopData> => http.get('/api/netease/toplist/artist');
+export const toplistArtist = (): Promise<ArtistTopData> => http.post('/api/netease/toplist/artist');

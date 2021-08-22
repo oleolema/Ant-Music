@@ -20,17 +20,17 @@ open class SpringMvcConfig : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**").allowedOrigins("*")
-            .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
-            .allowCredentials(false).maxAge(3600)
+                .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowCredentials(false).maxAge(3600)
     }
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(object : HandlerInterceptor {
             override fun postHandle(
-                request: HttpServletRequest,
-                response: HttpServletResponse,
-                handler: Any,
-                modelAndView: ModelAndView?
+                    request: HttpServletRequest,
+                    response: HttpServletResponse,
+                    handler: Any,
+                    modelAndView: ModelAndView?
             ) {
                 if (modelAndView != null && response.status == HttpStatus.NOT_FOUND.value()) {
                     response.status = HttpStatus.OK.value()

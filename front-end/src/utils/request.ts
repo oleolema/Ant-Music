@@ -2,8 +2,8 @@
  * request 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
-import { extend, ExtendOptionsInit } from 'umi-request';
-import { message, notification } from 'antd';
+import {extend, ExtendOptionsInit} from 'umi-request';
+import {message, notification} from 'antd';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -56,10 +56,10 @@ enum ApiStatus {
  * 异常处理程序
  */
 const errorHandler = (error: { response: Response }): Response => {
-  const { response } = error;
+  const {response} = error;
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
-    const { status, url } = response;
+    const {status, url} = response;
     notification.error({
       message: `请求错误 ${status}: ${url}`,
       description: errorText,
@@ -83,7 +83,7 @@ const request = extend({
   // 缓存键为“ url +参数+方法”。
   useCache: true, //默认
   // 缓存持续时间（毫秒）,0为无穷大
-  ttl: 24 * 3600 * 1000,
+  ttl: 1800 * 1000,
   //是要缓存的最大请求数,0表示无穷大。
   maxCache: 0,
   // 对于某些需要使用其他方法要求缓存数据的情况,
@@ -93,14 +93,14 @@ const request = extend({
 });
 
 const http: HttpType = (url: string, options?: HttpExtendOptionsInit | undefined): Promise<any> => {
-  const { errorMsg = true } = options || {};
+  const {errorMsg = true} = options || {};
   return request(url, options)
     .catch((err) => {
       console.error('error', err);
       return Promise.reject(err);
     })
     .then((res: ApiResult<any>) => {
-      if (res == null) {
+      if (!res) {
         message.error('未知错误');
         return Promise.reject(null);
       }
@@ -109,7 +109,8 @@ const http: HttpType = (url: string, options?: HttpExtendOptionsInit | undefined
       }
       if (res.code != ApiStatus.success) {
         if (errorMsg) {
-          res.msg ? message.error(res.msg) : message.error('未知错误');
+          console.error(res.msg);
+          res.msg ? message.error(String(res.msg)) : message.error('未知错误');
         }
         return Promise.reject({
           message: res.msg,
@@ -126,26 +127,26 @@ const http: HttpType = (url: string, options?: HttpExtendOptionsInit | undefined
 };
 
 http.get = (url: string, options?: HttpExtendOptionsInit | undefined): Promise<any> =>
-  http(url, { method: 'GET', ...options });
+  http(url, {method: 'GET', ...options});
 
 http.post = (url: string, options?: HttpExtendOptionsInit | undefined): Promise<any> =>
-  http(url, { method: 'POST', ...options });
+  http(url, {method: 'POST', ...options});
 
 http.delete = (url: string, options?: HttpExtendOptionsInit | undefined): Promise<any> =>
-  http(url, { method: 'DELETE', ...options });
+  http(url, {method: 'DELETE', ...options});
 
 http.put = (url: string, options?: HttpExtendOptionsInit | undefined): Promise<any> =>
-  http(url, { method: 'PUT', ...options });
+  http(url, {method: 'PUT', ...options});
 
 http.patch = (url: string, options?: HttpExtendOptionsInit | undefined): Promise<any> =>
-  http(url, { method: 'PATCH', ...options });
+  http(url, {method: 'PATCH', ...options});
 
 http.head = (url: string, options?: HttpExtendOptionsInit | undefined): Promise<any> =>
-  http(url, { method: 'HEAD', ...options });
+  http(url, {method: 'HEAD', ...options});
 
 http.options = (url: string, options?: HttpExtendOptionsInit | undefined): Promise<any> =>
-  http(url, { method: 'OPTIONS', ...options });
+  http(url, {method: 'OPTIONS', ...options});
 
 export default request;
 
-export { http };
+export {http};
