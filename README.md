@@ -1,6 +1,6 @@
 # Ant Music  多设备同步音乐播放器
 
-毕设项目，后端使用Kotlin， 前端使用React
+后端使用Kotlin， 前端使用React
 
 项目在线演示：[http://www.oleolema.cn:8080/](http://www.oleolema.cn:8080/)   
 
